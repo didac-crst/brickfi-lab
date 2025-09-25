@@ -184,24 +184,14 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
             {(() => {
-              // Calculate loan term that would result in the desired amortization rate
-              const monthlyRate = inputs.annual_rate / 12;
-              const mortgageAmount = inputs.price - inputs.down_payment;
-              
-              // Find the loan term that gives us the desired amortization rate
-              for (let years = 1; years <= 40; years++) {
-                const monthlyPayment = mortgageAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -12 * years));
-                const firstMonthInterest = mortgageAmount * monthlyRate;
-                const firstMonthPrincipal = monthlyPayment - firstMonthInterest;
-                const calculatedAmortizationRate = firstMonthPrincipal / monthlyPayment;
-                
-                if (Math.abs(calculatedAmortizationRate - inputs.amortization_rate) < 0.001) {
-                  return `${years} years`;
-                }
+              // The amortization rate represents the percentage of the loan balance that gets paid down each month
+              // Formula: loan_term_years = 1 / (amortization_rate * 12)
+              if (inputs.amortization_rate <= 0) {
+                return "Invalid rate";
               }
               
-              // Fallback calculation
-              return "Calculating...";
+              const loanTermYears = 1 / (inputs.amortization_rate * 12);
+              return `${loanTermYears.toFixed(1)} years`;
             })()}
           </Typography>
           <Typography variant="caption" color="text.secondary">
