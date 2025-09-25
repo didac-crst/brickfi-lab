@@ -11,7 +11,7 @@ import {
 import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
-import { getDefaultBuyVsRentInputs } from '../utils/config';
+import { getDefaultBuyVsRentInputs, getDefaultBuyVsRentInputsSync } from '../utils/config';
 
 interface BuyVsRentFormProps {
   onInputsChange: (inputs: BuyVsRentInputs) => void;
@@ -19,15 +19,27 @@ interface BuyVsRentFormProps {
 }
 
 const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }: BuyVsRentFormProps) => {
-  const [inputs, setInputs] = useState<BuyVsRentInputs>(getDefaultBuyVsRentInputs());
+  const [inputs, setInputs] = useState<BuyVsRentInputs>(getDefaultBuyVsRentInputsSync());
 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Initialize with default values from config
-    const defaults = getDefaultBuyVsRentInputs();
-    setInputs(defaults);
-    onInputsChange(defaults);
+    // Load default values from shared config via backend API
+    const loadDefaults = async () => {
+      try {
+        const defaults = await getDefaultBuyVsRentInputs();
+        setInputs(defaults);
+        onInputsChange(defaults);
+      } catch (error) {
+        console.error('Failed to load defaults:', error);
+        // Fallback to sync version if async fails
+        const fallbackDefaults = getDefaultBuyVsRentInputsSync();
+        setInputs(fallbackDefaults);
+        onInputsChange(fallbackDefaults);
+      }
+    };
+    
+    loadDefaults();
   }, []);
 
   const handleInputChange = (field: keyof BuyVsRentInputs, value: number) => {
@@ -278,11 +290,19 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         <Button
           variant="outlined"
           startIcon={<Refresh />}
-          onClick={() => {
-            const defaults = getDefaultBuyVsRentInputs();
-            setInputs(defaults);
-            onInputsChange(defaults);
-            setError(null);
+          onClick={async () => {
+            try {
+              const defaults = await getDefaultBuyVsRentInputs();
+              setInputs(defaults);
+              onInputsChange(defaults);
+              setError(null);
+            } catch (error) {
+              console.error('Failed to reset to defaults:', error);
+              const fallbackDefaults = getDefaultBuyVsRentInputsSync();
+              setInputs(fallbackDefaults);
+              onInputsChange(fallbackDefaults);
+              setError(null);
+            }
           }}
           disabled={loading}
         >

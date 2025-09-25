@@ -5,7 +5,7 @@
     "down_payment": 100000,
     "annual_rate": 0.03,
     "amortization_rate": 0.05,
-    "monthly_rent": 2000,
+    "monthly_rent": 2500,
     "taxe_fonciere_monthly": 0,
     "insurance_monthly": 0,
     "maintenance_pct_annual": 0.0,
