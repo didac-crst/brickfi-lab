@@ -63,7 +63,7 @@ async def get_default_inputs():
         fees_pct=0.075,
         down_payment=100000,
         annual_rate=0.032,
-        amortization_rate=0.004,
+        amortization_rate=0.04,
         monthly_rent=1700,
         taxe_fonciere_monthly=180,
         insurance_monthly=50,

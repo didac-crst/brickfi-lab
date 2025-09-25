@@ -16,6 +16,7 @@ export interface BuyVsRentSummary {
   total_acquisition_cost: number;
   mortgage_amount: number;
   monthly_PI: number;
+  total_interest_paid: number;
   owner_cost_month1: number;
   annual_saving_vs_rent: number;
   break_even_years: number | null;

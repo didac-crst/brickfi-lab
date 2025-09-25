@@ -51,6 +51,12 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       color: '#fff3e0',
     },
     {
+      title: 'Total Interest Paid',
+      value: formatCurrency(analysis.total_interest_paid),
+      icon: <TrendingUp sx={{ color: 'error.main' }} />,
+      color: '#ffebee',
+    },
+    {
       title: 'Monthly Owner Cost (Year 1)',
       value: formatCurrency(analysis.owner_cost_month1),
       icon: <TrendingDown sx={{ color: 'secondary.main' }} />,
@@ -60,7 +66,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       title: 'Monthly Rent Cost',
       value: formatCurrency(analysis.monthly_rent_total),
       icon: <TrendingDown sx={{ color: 'error.main' }} />,
-      color: '#ffebee',
+      color: '#f3e5f5',
     },
   ];
 
@@ -72,7 +78,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {summaryCards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={2.4} key={index}>
+          <Grid item xs={12} sm={6} md={2} key={index}>
             <Card sx={{ height: '100%', backgroundColor: card.color }}>
               <CardContent sx={{ textAlign: 'center', p: 2 }}>
                 <Box sx={{ mb: 1 }}>

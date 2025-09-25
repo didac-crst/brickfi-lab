@@ -24,7 +24,7 @@ class BuyVsRentInputs(BaseModel):
                 "fees_pct": 0.075,
                 "down_payment": 100000,
                 "annual_rate": 0.032,
-                "amortization_rate": 0.004,
+                "amortization_rate": 0.04,
                 "monthly_rent": 1700,
                 "taxe_fonciere_monthly": 180,
                 "insurance_monthly": 50,
@@ -40,6 +40,7 @@ class BuyVsRentSummary(BaseModel):
     total_acquisition_cost: float
     mortgage_amount: float
     monthly_PI: float
+    total_interest_paid: float
     owner_cost_month1: float
     annual_saving_vs_rent: float
     break_even_years: Optional[float]
@@ -55,6 +56,7 @@ class BuyVsRentSummary(BaseModel):
                 "total_acquisition_cost": 451500,
                 "mortgage_amount": 320000,
                 "monthly_PI": 1550.97,
+                "total_interest_paid": 145291.82,
                 "owner_cost_month1": 1398.33,
                 "annual_saving_vs_rent": 3620.00,
                 "break_even_years": 14.50,

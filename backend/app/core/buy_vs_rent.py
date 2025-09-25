@@ -48,11 +48,25 @@ class BuyVsRentAnalyzer:
         maintenance = self.i.price * self.i.maintenance_pct_annual / 12.0
         return interest_m1 + self.i.insurance_monthly + self.i.taxe_fonciere_monthly + maintenance
 
+    def total_interest_paid(self) -> float:
+        """Calculate total interest paid over the life of the loan."""
+        monthly_payment = self.monthly_payment()
+        total_payments = monthly_payment * 12 * self.term_years
+        return total_payments - self.mortgage_amount
+
     def annual_saving_vs_rent(self) -> float:
-        """Annual rent minus owner cost (positive => owning cheaper in year 1)."""
-        owner = self.owner_monthly_cost_year1()
+        """Annual rent minus total owner cost including principal (positive => owning cheaper in year 1)."""
+        # Total monthly owner cost = mortgage payment + taxes + insurance + maintenance
+        monthly_mortgage = self.monthly_payment()
+        monthly_taxes_insurance_maintenance = (
+            self.i.taxe_fonciere_monthly + 
+            self.i.insurance_monthly + 
+            (self.i.price * self.i.maintenance_pct_annual / 12)
+        )
+        total_monthly_owner_cost = monthly_mortgage + monthly_taxes_insurance_maintenance
+        
         rent = self.i.monthly_rent + self.i.renter_insurance_monthly
-        return (rent - owner) * 12.0
+        return (rent - total_monthly_owner_cost) * 12.0
 
     def break_even_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
         """Break-even horizon (years) accounting for loan payoff and reduced costs."""
@@ -103,6 +117,7 @@ class BuyVsRentAnalyzer:
             total_acquisition_cost=self.i.price + (self.i.fees_pct * self.i.price),
             mortgage_amount=self.mortgage_amount,
             monthly_PI=self.monthly_payment(),
+            total_interest_paid=self.total_interest_paid(),
             owner_cost_month1=owner_cost_month1,
             annual_saving_vs_rent=self.annual_saving_vs_rent(),
             break_even_years=self.break_even_years(sell_cost_pct),
