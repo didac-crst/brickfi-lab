@@ -1,6 +1,33 @@
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from './api';
-import defaultConfig from '../config/defaults.json';
+
+// Try to import the copied config, fallback to shared config in Docker
+let defaultConfig: any;
+try {
+  defaultConfig = require('../config/defaults.json');
+} catch (error) {
+  // In Docker environment, try to read from shared config
+  try {
+    defaultConfig = require('/shared/config/defaults.json');
+  } catch (sharedError) {
+    // Ultimate fallback - hardcoded values (should never happen)
+    console.warn('Could not load config from any source, using hardcoded fallback');
+    defaultConfig = {
+      buy_vs_rent: {
+        price: 500000,
+        fees_pct: 0.10,
+        down_payment: 100000,
+        annual_rate: 0.03,
+        amortization_rate: 0.05,
+        monthly_rent: 2000,
+        taxe_fonciere_monthly: 0,
+        insurance_monthly: 0,
+        maintenance_pct_annual: 0.0,
+        renter_insurance_monthly: 0
+      }
+    };
+  }
+}
 
 // Cache for default values to avoid repeated API calls
 let cachedDefaults: BuyVsRentInputs | null = null;
