@@ -68,3 +68,60 @@ async def get_default_inputs():
     
     defaults = config["buy_vs_rent"]
     return BuyVsRentInputs(**defaults)
+
+
+@router.post("/house-value-over-time")
+async def get_house_value_over_time(inputs: BuyVsRentInputs, years: int = 30):
+    """
+    Calculate house value over time with appreciation.
+    
+    Args:
+        inputs: Buy vs rent analysis inputs
+        years: Number of years to project (default: 30)
+    
+    Returns:
+        List of yearly house values with appreciation
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.house_value_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/investment-value-over-time")
+async def get_investment_value_over_time(inputs: BuyVsRentInputs, years: int = 30):
+    """
+    Calculate investment value over time if down payment was invested instead.
+    
+    Args:
+        inputs: Buy vs rent analysis inputs
+        years: Number of years to project (default: 30)
+    
+    Returns:
+        List of yearly investment values with gains
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.investment_value_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/wealth-comparison-over-time")
+async def get_wealth_comparison_over_time(inputs: BuyVsRentInputs, years: int = 30):
+    """
+    Compare total wealth between buying vs renting+investing over time.
+    
+    Args:
+        inputs: Buy vs rent analysis inputs
+        years: Number of years to project (default: 30)
+    
+    Returns:
+        List of yearly wealth comparisons between buying and renting+investing
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.wealth_comparison_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

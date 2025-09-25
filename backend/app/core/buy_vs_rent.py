@@ -194,3 +194,88 @@ class BuyVsRentAnalyzer:
             })
         
         return results
+
+    def house_value_over_time(self, years: int = 30) -> List[Dict]:
+        """Calculate house value over time with appreciation."""
+        results = []
+        current_value = self.i.price
+        
+        for year in range(years + 1):
+            results.append({
+                "year": year,
+                "house_value": current_value,
+                "appreciation": current_value - self.i.price
+            })
+            current_value *= (1 + self.i.house_appreciation_rate)
+        
+        return results
+
+    def investment_value_over_time(self, years: int = 30) -> List[Dict]:
+        """Calculate investment value over time if down payment was invested instead."""
+        results = []
+        current_value = self.i.down_payment
+        
+        for year in range(years + 1):
+            results.append({
+                "year": year,
+                "investment_value": current_value,
+                "gains": current_value - self.i.down_payment
+            })
+            current_value *= (1 + self.i.investment_return_rate)
+        
+        return results
+
+    def wealth_comparison_over_time(self, years: int = 30) -> List[Dict]:
+        """Compare total wealth between buying vs renting+investing over time."""
+        house_values = self.house_value_over_time(years)
+        investment_values = self.investment_value_over_time(years)
+        cash_flow = self.monthly_cash_flow_analysis(years * 12)
+        
+        results = []
+        
+        for year in range(years + 1):
+            # House wealth = house value - remaining mortgage balance
+            house_value = house_values[year]["house_value"]
+            
+            # Calculate remaining mortgage balance
+            remaining_balance = self.mortgage_amount
+            monthly_rate = self.i.annual_rate / 12
+            monthly_payment = self.monthly_payment()
+            
+            for month in range(year * 12):
+                if remaining_balance <= 0:
+                    break
+                interest_payment = remaining_balance * monthly_rate
+                principal_payment = min(monthly_payment - interest_payment, remaining_balance)
+                remaining_balance -= principal_payment
+            
+            house_wealth = house_value - remaining_balance
+            
+            # Investment wealth = investment value + cumulative savings from renting
+            investment_value = investment_values[year]["investment_value"]
+            
+            # Calculate cumulative savings from renting (monthly savings * 12 months)
+            if year == 0:
+                cumulative_savings = 0
+            else:
+                # Get the last month of the previous year
+                last_month_idx = min(year * 12 - 1, len(cash_flow) - 1)
+                cumulative_savings = cash_flow[last_month_idx]["cumulative_savings"] if last_month_idx >= 0 else 0
+            
+            investment_wealth = investment_value + cumulative_savings
+            
+            # Net wealth difference (positive = buying is better)
+            wealth_difference = house_wealth - investment_wealth
+            
+            results.append({
+                "year": year,
+                "house_wealth": house_wealth,
+                "investment_wealth": investment_wealth,
+                "wealth_difference": wealth_difference,
+                "house_value": house_value,
+                "remaining_mortgage": remaining_balance,
+                "investment_value": investment_value,
+                "cumulative_savings": cumulative_savings
+            })
+        
+        return results

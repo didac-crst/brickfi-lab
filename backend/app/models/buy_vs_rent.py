@@ -16,6 +16,8 @@ class BuyVsRentInputs(BaseModel):
     insurance_monthly: float = Field(..., description="Borrower insurance monthly cost (euros)", ge=0)
     maintenance_pct_annual: float = Field(..., description="Annual maintenance as % of price", ge=0)
     renter_insurance_monthly: float = Field(0.0, description="Optional renter insurance (euros)", ge=0)
+    house_appreciation_rate: float = Field(..., description="Annual house appreciation rate (e.g., 0.02 for 2% per year)", ge=0, lt=0.2)
+    investment_return_rate: float = Field(..., description="Annual investment return rate for down payment (e.g., 0.07 for 7% per year)", ge=0, lt=0.3)
 
     class Config:
         json_schema_extra = {
@@ -29,7 +31,9 @@ class BuyVsRentInputs(BaseModel):
                 "taxe_fonciere_monthly": 0,
                 "insurance_monthly": 0,
                 "maintenance_pct_annual": 0.0,
-                "renter_insurance_monthly": 0
+                "renter_insurance_monthly": 0,
+                "house_appreciation_rate": 0.02,
+                "investment_return_rate": 0.07
             }
         }
 

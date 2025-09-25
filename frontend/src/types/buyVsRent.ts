@@ -3,12 +3,14 @@ export interface BuyVsRentInputs {
   fees_pct: number;
   down_payment: number;
   annual_rate: number;
-  amortization_rate: number; // Monthly amortization rate (e.g., 0.004 for 0.4% per month)
+  amortization_rate: number; // Yearly amortization rate (e.g., 0.05 for 5% per year)
   monthly_rent: number;
   taxe_fonciere_monthly: number;
   insurance_monthly: number;
   maintenance_pct_annual: number;
   renter_insurance_monthly: number;
+  house_appreciation_rate: number; // Annual house appreciation rate (e.g., 0.02 for 2% per year)
+  investment_return_rate: number; // Annual investment return rate for down payment (e.g., 0.07 for 7% per year)
 }
 
 export interface BuyVsRentSummary {

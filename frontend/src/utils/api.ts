@@ -37,6 +37,21 @@ export const buyVsRentApi = {
     const response = await api.get('/api/buy-vs-rent/default-inputs');
     return response.data;
   },
+
+  getHouseValueOverTime: async (inputs: BuyVsRentInputs, years: number = 30) => {
+    const response = await api.post(`/api/buy-vs-rent/house-value-over-time?years=${years}`, inputs);
+    return response.data;
+  },
+
+  getInvestmentValueOverTime: async (inputs: BuyVsRentInputs, years: number = 30) => {
+    const response = await api.post(`/api/buy-vs-rent/investment-value-over-time?years=${years}`, inputs);
+    return response.data;
+  },
+
+  getWealthComparisonOverTime: async (inputs: BuyVsRentInputs, years: number = 30) => {
+    const response = await api.post(`/api/buy-vs-rent/wealth-comparison-over-time?years=${years}`, inputs);
+    return response.data;
+  },
 };
 
 // Forward Tracker API calls

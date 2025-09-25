@@ -277,6 +277,41 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
       </Grid>
 
+      <Divider sx={{ my: 3 }}>
+        <Typography variant="h6" color="text.secondary">
+          Investment & Appreciation
+        </Typography>
+      </Divider>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="House Appreciation Rate"
+            type="number"
+            value={inputs.house_appreciation_rate * 100}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('house_appreciation_rate', (parseFloat(e.target.value) || 0) / 100)}
+            InputProps={{
+              endAdornment: '%',
+            }}
+            helperText="Annual house value appreciation (e.g., 2% per year)"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Investment Return Rate"
+            type="number"
+            value={inputs.investment_return_rate * 100}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('investment_return_rate', (parseFloat(e.target.value) || 0) / 100)}
+            InputProps={{
+              endAdornment: '%',
+            }}
+            helperText="Annual return if down payment was invested (e.g., 7% per year)"
+          />
+        </Grid>
+      </Grid>
+
       <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
         <Button
           variant="contained"

@@ -23,7 +23,9 @@ try {
         taxe_fonciere_monthly: 0,
         insurance_monthly: 0,
         maintenance_pct_annual: 0.0,
-        renter_insurance_monthly: 0
+        renter_insurance_monthly: 0,
+        house_appreciation_rate: 0.02,
+        investment_return_rate: 0.07
       }
     };
   }
