@@ -61,8 +61,8 @@ async def get_default_inputs():
     import json
     import os
     
-    # Load defaults from config file
-    config_path = os.path.join(os.path.dirname(__file__), "../../config/defaults.json")
+    # Load defaults from shared config file
+    config_path = "/shared/config/defaults.json"
     with open(config_path, 'r') as f:
         config = json.load(f)
     

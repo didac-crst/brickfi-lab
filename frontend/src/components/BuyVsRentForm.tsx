@@ -11,6 +11,7 @@ import {
 import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
+import { getDefaultBuyVsRentInputs } from '../utils/config';
 
 interface BuyVsRentFormProps {
   onInputsChange: (inputs: BuyVsRentInputs) => void;
@@ -18,34 +19,16 @@ interface BuyVsRentFormProps {
 }
 
 const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }: BuyVsRentFormProps) => {
-  const [inputs, setInputs] = useState<BuyVsRentInputs>({
-    price: 500000,
-    fees_pct: 0.10,
-    down_payment: 100000,
-    annual_rate: 0.03,
-    amortization_rate: 0.05,
-    monthly_rent: 2000,
-    taxe_fonciere_monthly: 0,
-    insurance_monthly: 0,
-    maintenance_pct_annual: 0.0,
-    renter_insurance_monthly: 0,
-  });
+  const [inputs, setInputs] = useState<BuyVsRentInputs>(getDefaultBuyVsRentInputs());
 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadDefaultInputs();
+    // Initialize with default values from config
+    const defaults = getDefaultBuyVsRentInputs();
+    setInputs(defaults);
+    onInputsChange(defaults);
   }, []);
-
-  const loadDefaultInputs = async () => {
-    try {
-      const defaults = await buyVsRentApi.getDefaultInputs();
-      setInputs(defaults);
-      onInputsChange(defaults);
-    } catch (err) {
-      console.error('Failed to load default inputs:', err);
-    }
-  };
 
   const handleInputChange = (field: keyof BuyVsRentInputs, value: number) => {
     const newInputs = { ...inputs, [field]: value };
@@ -295,7 +278,12 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         <Button
           variant="outlined"
           startIcon={<Refresh />}
-          onClick={loadDefaultInputs}
+          onClick={() => {
+            const defaults = getDefaultBuyVsRentInputs();
+            setInputs(defaults);
+            onInputsChange(defaults);
+            setError(null);
+          }}
           disabled={loading}
         >
           Reset
