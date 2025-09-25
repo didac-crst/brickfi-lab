@@ -270,7 +270,6 @@ class BuyVsRentAnalyzer:
         """Compare total wealth between buying vs renting+investing over time."""
         house_values = self.house_value_over_time(years)
         investment_values = self.investment_value_over_time(years)
-        cash_flow = self.monthly_cash_flow_analysis(years * 12)
         
         results = []
         
@@ -293,17 +292,29 @@ class BuyVsRentAnalyzer:
             house_wealth = house_value - remaining_balance
             
             # Investment wealth = pure investment value (independent of mortgage rate)
-            # + cumulative savings from renting (which does depend on mortgage rate)
+            # + cumulative savings from renting vs buying
             investment_value = investment_values[year]["investment_value"]
             
-            # Calculate cumulative savings from renting (monthly savings * 12 months)
-            # This DOES depend on mortgage rate because it affects owner costs
+            # Calculate cumulative savings from renting vs buying
+            # This should be: rent cost - total owner cost (full mortgage + taxes + insurance + maintenance)
             if year == 0:
                 cumulative_savings = 0
             else:
-                # Get the last month of the previous year
-                last_month_idx = min(year * 12 - 1, len(cash_flow) - 1)
-                cumulative_savings = cash_flow[last_month_idx]["cumulative_savings"] if last_month_idx >= 0 else 0
+                # Calculate total owner cost per month (full mortgage + taxes + insurance + maintenance)
+                monthly_mortgage = self.monthly_payment()
+                monthly_taxes_insurance_maintenance = (
+                    self.i.taxe_fonciere_monthly + 
+                    self.i.insurance_monthly + 
+                    (self.i.price * self.i.maintenance_pct_annual / 12)
+                )
+                total_monthly_owner_cost = monthly_mortgage + monthly_taxes_insurance_maintenance
+                
+                # Monthly savings from renting
+                monthly_rent_cost = self.i.monthly_rent + self.i.renter_insurance_monthly
+                monthly_savings = monthly_rent_cost - total_monthly_owner_cost
+                
+                # Cumulative savings over the year
+                cumulative_savings = monthly_savings * 12 * year
             
             investment_wealth = investment_value + cumulative_savings
             
