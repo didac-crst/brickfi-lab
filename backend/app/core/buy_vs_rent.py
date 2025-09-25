@@ -55,12 +55,43 @@ class BuyVsRentAnalyzer:
         return (rent - owner) * 12.0
 
     def break_even_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
-        """Break-even horizon (years) from cash-flow advantage."""
-        annual = self.annual_saving_vs_rent()
-        if annual <= 0:
-            return None
-        round_trip = (self.i.fees_pct + sell_cost_pct) * self.i.price
-        return round_trip / annual
+        """Break-even horizon (years) accounting for loan payoff and reduced costs."""
+        # Calculate total upfront costs
+        upfront_costs = self.i.down_payment + (self.i.fees_pct * self.i.price)
+        
+        # Calculate loan payoff year
+        loan_payoff_year = self.term_years
+        
+        # Calculate ongoing costs after loan payoff (property tax + insurance + maintenance)
+        monthly_ongoing_costs = (
+            self.i.taxe_fonciere_monthly + 
+            self.i.insurance_monthly + 
+            (self.i.price * self.i.maintenance_pct_annual / 12)
+        )
+        
+        # Calculate cumulative savings over time
+        monthly_rent = self.i.monthly_rent + self.i.renter_insurance_monthly
+        monthly_owner_cost_during_loan = self.owner_monthly_cost_year1()
+        
+        cumulative_savings = 0
+        for year in range(1, int(loan_payoff_year) + 1):
+            # During loan period: rent - (interest + taxes + insurance + maintenance)
+            annual_savings = (monthly_rent - monthly_owner_cost_during_loan) * 12
+            cumulative_savings += annual_savings
+            
+            if cumulative_savings >= upfront_costs:
+                return year
+        
+        # After loan payoff, costs are much lower
+        for year in range(int(loan_payoff_year) + 1, 50):  # Check up to 50 years
+            # After loan payoff: rent - (taxes + insurance + maintenance only)
+            annual_savings = (monthly_rent - monthly_ongoing_costs) * 12
+            cumulative_savings += annual_savings
+            
+            if cumulative_savings >= upfront_costs:
+                return year
+        
+        return None  # Never breaks even
 
     def summary(self, sell_cost_pct: float = 0.05) -> BuyVsRentSummary:
         """Key outputs for dashboards/LLMs."""
@@ -68,6 +99,8 @@ class BuyVsRentAnalyzer:
         owner_cost_month1 = self.owner_monthly_cost_year1()
         
         return BuyVsRentSummary(
+            property_price=self.i.price,
+            total_acquisition_cost=self.i.price + (self.i.fees_pct * self.i.price),
             mortgage_amount=self.mortgage_amount,
             monthly_PI=self.monthly_payment(),
             owner_cost_month1=owner_cost_month1,

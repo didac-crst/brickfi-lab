@@ -12,6 +12,8 @@ export interface BuyVsRentInputs {
 }
 
 export interface BuyVsRentSummary {
+  property_price: number;
+  total_acquisition_cost: number;
   mortgage_amount: number;
   monthly_PI: number;
   owner_cost_month1: number;

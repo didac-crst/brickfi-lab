@@ -33,28 +33,34 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
 
   const summaryCards = [
     {
-      title: 'Mortgage Amount',
-      value: formatCurrency(analysis.mortgage_amount),
-      icon: <Euro sx={{ color: 'primary.main' }} />,
+      title: 'Property Price',
+      value: formatCurrency(analysis.property_price),
+      icon: <Home sx={{ color: 'primary.main' }} />,
       color: '#e3f2fd',
     },
     {
-      title: 'Monthly P&I Payment',
-      value: formatCurrency(analysis.monthly_PI),
-      icon: <Home sx={{ color: 'info.main' }} />,
+      title: 'Total Acquisition Cost',
+      value: formatCurrency(analysis.total_acquisition_cost),
+      icon: <Euro sx={{ color: 'info.main' }} />,
       color: '#e0f2f1',
     },
     {
-      title: 'Monthly Owner Cost',
-      value: formatCurrency(analysis.owner_cost_month1),
+      title: 'Monthly Credit Repayment',
+      value: formatCurrency(analysis.monthly_PI),
       icon: <TrendingUp sx={{ color: 'warning.main' }} />,
       color: '#fff3e0',
     },
     {
-      title: 'Monthly Rent Cost',
-      value: formatCurrency(analysis.monthly_rent_total),
+      title: 'Monthly Owner Cost (Year 1)',
+      value: formatCurrency(analysis.owner_cost_month1),
       icon: <TrendingDown sx={{ color: 'secondary.main' }} />,
       color: '#fce4ec',
+    },
+    {
+      title: 'Monthly Rent Cost',
+      value: formatCurrency(analysis.monthly_rent_total),
+      icon: <TrendingDown sx={{ color: 'error.main' }} />,
+      color: '#ffebee',
     },
   ];
 
@@ -66,7 +72,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {summaryCards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid item xs={12} sm={6} md={2.4} key={index}>
             <Card sx={{ height: '100%', backgroundColor: card.color }}>
               <CardContent sx={{ textAlign: 'center', p: 2 }}>
                 <Box sx={{ mb: 1 }}>
@@ -83,6 +89,20 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
           </Grid>
         ))}
       </Grid>
+
+      {/* Cost Explanation */}
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Cost Breakdown
+          </Typography>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <strong>Monthly Credit Repayment:</strong> Full mortgage payment (principal + interest)<br/>
+            <strong>Monthly Owner Cost (Year 1):</strong> Only the economic cost (interest + taxes + insurance + maintenance)
+          </Typography>
+        </CardContent>
+      </Card>
 
       {/* Key Insights */}
       <Card sx={{ mb: 2 }}>

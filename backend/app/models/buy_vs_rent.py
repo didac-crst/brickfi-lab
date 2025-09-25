@@ -36,6 +36,8 @@ class BuyVsRentInputs(BaseModel):
 
 class BuyVsRentSummary(BaseModel):
     """Summary of buy-vs-rent analysis results."""
+    property_price: float
+    total_acquisition_cost: float
     mortgage_amount: float
     monthly_PI: float
     owner_cost_month1: float
@@ -49,6 +51,8 @@ class BuyVsRentSummary(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "property_price": 420000,
+                "total_acquisition_cost": 451500,
                 "mortgage_amount": 320000,
                 "monthly_PI": 1550.97,
                 "owner_cost_month1": 1398.33,
