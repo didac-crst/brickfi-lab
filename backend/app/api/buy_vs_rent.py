@@ -58,15 +58,13 @@ async def monthly_cash_flow_analysis(inputs: BuyVsRentInputs, months: int = 60):
 @router.get("/default-inputs", response_model=BuyVsRentInputs)
 async def get_default_inputs():
     """Get default input values for the buy vs rent analysis."""
-    return BuyVsRentInputs(
-        price=500000,
-        fees_pct=0.10,
-        down_payment=100000,
-        annual_rate=0.03,
-        amortization_rate=0.05,
-        monthly_rent=2000,
-        taxe_fonciere_monthly=0,
-        insurance_monthly=0,
-        maintenance_pct_annual=0.0,
-        renter_insurance_monthly=0
-    )
+    import json
+    import os
+    
+    # Load defaults from config file
+    config_path = os.path.join(os.path.dirname(__file__), "../../config/defaults.json")
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    defaults = config["buy_vs_rent"]
+    return BuyVsRentInputs(**defaults)

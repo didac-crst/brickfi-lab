@@ -55,18 +55,11 @@ class BuyVsRentAnalyzer:
         return total_payments - self.mortgage_amount
 
     def annual_saving_vs_rent(self) -> float:
-        """Annual rent minus total owner cost including principal (positive => owning cheaper in year 1)."""
-        # Total monthly owner cost = mortgage payment + taxes + insurance + maintenance
-        monthly_mortgage = self.monthly_payment()
-        monthly_taxes_insurance_maintenance = (
-            self.i.taxe_fonciere_monthly + 
-            self.i.insurance_monthly + 
-            (self.i.price * self.i.maintenance_pct_annual / 12)
-        )
-        total_monthly_owner_cost = monthly_mortgage + monthly_taxes_insurance_maintenance
-        
+        """Annual rent minus economic owner cost (positive => owning cheaper in year 1)."""
+        # Use the same logic as owner_monthly_cost_year1() for consistency
+        monthly_owner_cost = self.owner_monthly_cost_year1()
         rent = self.i.monthly_rent + self.i.renter_insurance_monthly
-        return (rent - total_monthly_owner_cost) * 12.0
+        return (rent - monthly_owner_cost) * 12.0
 
     def break_even_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
         """Break-even horizon (years) accounting for loan payoff and reduced costs."""
