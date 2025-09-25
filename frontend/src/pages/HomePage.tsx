@@ -31,13 +31,6 @@ const HomePage: React.FC = () => {
       path: '/forward-tracker',
       color: '#fce4ec',
     },
-    {
-      title: 'Interactive Charts',
-      description: 'Visualize your analysis with real-time charts that update as you modify input parameters.',
-      icon: <Assessment sx={{ fontSize: 40, color: 'success.main' }} />,
-      path: '/buy-vs-rent',
-      color: '#e8f5e8',
-    },
   ];
 
   return (

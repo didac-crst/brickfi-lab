@@ -9,6 +9,13 @@ class ForwardPremiumSchedule(BaseModel):
     free_months: int = Field(12, description="Number of months with no premium", ge=0)
     premium_pp_per_month: float = Field(0.01, description="Premium in percentage points per month", ge=0)
 
+    def total_premium_pp(self, lead_months: int) -> float:
+        """Calculate total premium in percentage points for given lead time."""
+        if lead_months <= self.free_months:
+            return 0.0
+        chargeable_months = lead_months - self.free_months
+        return chargeable_months * self.premium_pp_per_month
+
     class Config:
         json_schema_extra = {
             "example": {
