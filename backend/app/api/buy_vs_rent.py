@@ -4,7 +4,8 @@ from app.models.buy_vs_rent import (
     BuyVsRentInputs, 
     BuyVsRentSummary, 
     SensitivityInputs, 
-    SensitivityResult
+    SensitivityResult,
+    PureBaselinePoint
 )
 from app.core.buy_vs_rent import BuyVsRentAnalyzer
 
@@ -161,5 +162,27 @@ async def get_net_advantage_over_time(inputs: BuyVsRentInputs, years: int = 30):
     try:
         analyzer = BuyVsRentAnalyzer(inputs)
         return analyzer.net_advantage_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/pure-baseline-wealth", response_model=List[PureBaselinePoint])
+async def pure_baseline_wealth(
+    inputs: BuyVsRentInputs,
+    years: int = 30,
+    sell_on_horizon: bool = False,
+    sell_cost_pct: float = 0.05,
+):
+    """
+    Pure Renter baseline (DP compounded; rent consumed) vs Buy — yearly series.
+    Baseline is independent of mortgage rates.
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.pure_baseline_vs_buy_over_time(
+            years=years,
+            sell_on_horizon=sell_on_horizon,
+            sell_cost_pct=sell_cost_pct,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

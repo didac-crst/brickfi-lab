@@ -49,7 +49,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
     loadDefaults();
   }, []);
 
-  const handleInputChange = (field: keyof BuyVsRentInputs, value: number) => {
+  const handleInputChange = (field: keyof BuyVsRentInputs, value: number | string | boolean) => {
     const newInputs = { ...inputs, [field]: value };
     setInputs(newInputs);
     setError(null);

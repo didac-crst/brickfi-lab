@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult } from '../types/buyVsRent';
+import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, PureBaselinePoint } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
 
 export const useBuyVsRentAnalysis = () => {
@@ -7,6 +7,7 @@ export const useBuyVsRentAnalysis = () => {
   const [sensitivity, setSensitivity] = useState<SensitivityResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pureBaseline, setPureBaseline] = useState<PureBaselinePoint[] | null>(null);
 
   const analyze = async (inputs: BuyVsRentInputs) => {
     setLoading(true);
@@ -68,9 +69,18 @@ export const useBuyVsRentAnalysis = () => {
   return {
     analysis,
     sensitivity,
+    pureBaseline,
     loading,
     error,
     analyze,
     runSensitivity,
+    runPureBaseline: async (inputs: BuyVsRentInputs, years = 30, sellOnHorizon = false, sellCostPct = 0.05) => {
+      try {
+        const data = await buyVsRentApi.pureBaselineWealth(inputs, years, sellOnHorizon, sellCostPct);
+        setPureBaseline(data);
+      } catch (e: any) {
+        setError(e?.message || 'Failed to compute pure baseline wealth');
+      }
+    },
   };
 };

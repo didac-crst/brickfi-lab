@@ -15,6 +15,29 @@ export interface BuyVsRentInputs {
   sell_on_horizon: boolean; // Whether to sell the house at the evaluation horizon
 }
 
+export interface PureBaselinePoint {
+  year: number;
+  baseline_liquid: number;
+  cumul_rent: number;
+  house_value: number;
+  remaining_mortgage: number;
+  equity: number;
+  net_equity: number;
+  cumul_interest: number;
+  cumul_owner_other: number;
+  cumul_owner_cost: number;
+  cashflow_gap: number;
+  net_advantage: number;
+  components: {
+    appreciation_gain: number;
+    principal_built: number;
+    interest_drag: number;        // negative
+    opportunity_cost_dp: number;  // negative
+    rent_avoided_net: number;
+    closing_costs: number;        // negative
+  };
+}
+
 export interface BuyVsRentSummary {
   property_price: number;
   total_acquisition_cost: number;

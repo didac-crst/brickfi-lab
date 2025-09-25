@@ -14,16 +14,18 @@ import { Refresh, TrendingUp, TrendingDown, Download } from '@mui/icons-material
 import BuyVsRentForm from '../components/BuyVsRentForm';
 import BuyVsRentCharts from '../components/BuyVsRentCharts';
 import BuyVsRentSummary from '../components/BuyVsRentSummary';
+import BuyVsRentWaterfall from '../components/BuyVsRentWaterfall';
 import { useBuyVsRentAnalysis } from '../hooks/useBuyVsRentAnalysis';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 
 const BuyVsRentPage: React.FC = () => {
   const [inputs, setInputs] = useState<BuyVsRentInputs | null>(null);
-  const { analysis, sensitivity, loading, error, analyze, runSensitivity } = useBuyVsRentAnalysis();
+  const { analysis, sensitivity, pureBaseline, loading, error, analyze, runSensitivity, runPureBaseline } = useBuyVsRentAnalysis();
 
   const handleInputsChange = (newInputs: BuyVsRentInputs) => {
     setInputs(newInputs);
     analyze(newInputs);
+    runPureBaseline(newInputs, 30, false, 0.05);
   };
 
   const handleSensitivityAnalysis = () => {
@@ -226,6 +228,12 @@ const BuyVsRentPage: React.FC = () => {
                 />
               </Paper>
             </>
+          )}
+
+          {pureBaseline && pureBaseline.length > 0 && (
+            <Grid item xs={12}>
+              <BuyVsRentWaterfall data={pureBaseline} horizonYears={30} />
+            </Grid>
           )}
 
           {!analysis && !loading && (

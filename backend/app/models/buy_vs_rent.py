@@ -86,6 +86,28 @@ class BuyVsRentSummary(BaseModel):
         }
 
 
+class PureBaselinePoint(BaseModel):
+    """One yearly data point for the Pure Renter baseline vs Buy comparison."""
+    year: int
+    # Baseline (renter) side
+    baseline_liquid: float                 # DP compounded; rent is consumption
+    cumul_rent: float
+    # Buy side
+    house_value: float
+    remaining_mortgage: float
+    equity: float                          # V_t - RB_t
+    net_equity: float                      # same as equity unless sell_on_horizon & t=H
+    # Cost decompositions (buy side)
+    cumul_interest: float
+    cumul_owner_other: float               # taxes + insurance + maintenance + upfront fees
+    cumul_owner_cost: float                # interest + other + fees
+    # Cross-scenario comparison
+    cashflow_gap: float                    # cumul_rent - cumul_owner_cost
+    net_advantage: float                   # net_equity - baseline_liquid + cashflow_gap
+    # Waterfall-friendly components
+    components: Dict[str, float]           # {appreciation_gain, principal_built, interest_drag, opportunity_cost_dp, rent_avoided_net, closing_costs}
+
+
 class SensitivityInputs(BaseModel):
     """Inputs for sensitivity analysis."""
     base_inputs: BuyVsRentInputs

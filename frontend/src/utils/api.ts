@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, CashFlowData } from '../types/buyVsRent';
+import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, CashFlowData, PureBaselinePoint } from '../types/buyVsRent';
 import { ForwardDecisionInputs, ForwardDecisionResult, PremiumScheduleAnalysis } from '../types/forwardTracker';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -60,6 +60,18 @@ export const buyVsRentApi = {
 
       getNetAdvantageOverTime: async (inputs: BuyVsRentInputs, years: number = 30) => {
         const response = await api.post(`/api/buy-vs-rent/net-advantage-over-time?years=${years}`, inputs);
+        return response.data;
+      },
+
+      pureBaselineWealth: async (
+        inputs: BuyVsRentInputs,
+        years: number = 30,
+        sellOnHorizon: boolean = false,
+        sellCostPct: number = 0.05
+      ): Promise<PureBaselinePoint[]> => {
+        const response = await api.post('/api/buy-vs-rent/pure-baseline-wealth', inputs, {
+          params: { years, sell_on_horizon: sellOnHorizon, sell_cost_pct: sellCostPct },
+        });
         return response.data;
       },
 };

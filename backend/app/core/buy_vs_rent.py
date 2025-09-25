@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict
-from app.models.buy_vs_rent import BuyVsRentInputs, BuyVsRentSummary, SensitivityResult
+from app.models.buy_vs_rent import BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, PureBaselinePoint
 
 
 class BuyVsRentAnalyzer:
@@ -37,6 +37,11 @@ class BuyVsRentAnalyzer:
         if r_m == 0:
             return principal / n
         return principal * r_m / (1.0 - (1.0 + r_m) ** (-n))
+
+    @staticmethod
+    def _fv_lump_sum(pv: float, annual_rate: float, years: float) -> float:
+        """Future value of a lump sum, compounded annually (used at yearly checkpoints)."""
+        return pv * ((1 + annual_rate) ** years)
 
     def monthly_payment(self) -> float:
         """Return standard monthly principal+interest payment."""
@@ -394,6 +399,104 @@ class BuyVsRentAnalyzer:
             })
         
         return results
+
+    def pure_baseline_vs_buy_over_time(
+        self,
+        years: int = 30,
+        sell_on_horizon: bool = False,
+        sell_cost_pct: float = 0.05,
+    ) -> List[PureBaselinePoint]:
+        """
+        Compare 'Pure Renter baseline' (DP compounded; rent is consumption)
+        versus 'Buy' (equity build, costs, leverage) on an annual grid.
+        Baseline is independent of mortgage rates by construction.
+        """
+        i = self.i
+        # --- constants & monthly primitives ---
+        months_total = int(round(years * 12))
+        m_rate = i.annual_rate / 12.0
+        term_months = int(round(self.term_years * 12))
+        pmt = self._pmt(self.mortgage_amount, i.annual_rate, self.term_years)
+        maint_m = i.price * i.maintenance_pct_annual / 12.0
+        other_fixed_m = i.taxe_fonciere_monthly + i.insurance_monthly + maint_m
+        closing_costs = i.fees_pct * i.price  # upfront, counted in owner_other
+
+        # --- running state ---
+        rb = self.mortgage_amount
+        cumul_interest = 0.0
+        cumul_owner_other = closing_costs  # fees counted at t=0
+        cumul_owner_cost = closing_costs
+        cumul_rent = 0.0
+        principal_built = 0.0
+
+        out: List[PureBaselinePoint] = []
+
+        for m in range(0, months_total + 1):
+            y = m // 12
+            # Stop amortizing after loan term: no PI beyond term, but still pay taxes/ins/maint
+            if m > 0:
+                # renter consumption
+                cumul_rent += (i.monthly_rent + i.renter_insurance_monthly)
+
+                # owner side monthly costs
+                if m <= term_months and rb > 1e-8:
+                    interest = rb * m_rate
+                    principal = min(pmt - interest, rb)
+                    rb -= principal
+                    cumul_interest += interest
+                    principal_built += principal
+                    owner_monthly = pmt + other_fixed_m
+                else:
+                    # after payoff: only other_fixed_m remain
+                    interest = 0.0
+                    owner_monthly = other_fixed_m
+                cumul_owner_other += other_fixed_m
+                cumul_owner_cost += (interest + other_fixed_m + (pmt if m <= term_months and (pmt - interest) >= 0 else 0) - (pmt - interest if m <= term_months else 0))
+                # Note: cumul_owner_cost equals interest + other + (implicit principal inside PI) + closing at t=0.
+                # We report principal separately via equity / principal_built.
+
+            # yearly checkpoint (m % 12 == 0)
+            if m % 12 == 0:
+                V_t = i.price * ((1 + i.house_appreciation_rate) ** y)
+                equity = V_t - rb
+                net_equity = equity
+                if sell_on_horizon and y == years:
+                    net_equity = (V_t * (1 - sell_cost_pct)) - rb
+
+                baseline_liquid = self._fv_lump_sum(i.down_payment, i.investment_return_rate, y)
+
+                cashflow_gap = cumul_rent - cumul_owner_cost
+                net_advantage = net_equity - baseline_liquid + cashflow_gap
+
+                appreciation_gain = V_t - i.price
+                interest_drag = cumul_interest
+                opportunity_cost_dp = baseline_liquid
+                rent_avoided_net = cashflow_gap + closing_costs  # add fees if you want them separate
+
+                out.append(PureBaselinePoint(
+                    year=y,
+                    baseline_liquid=baseline_liquid,
+                    cumul_rent=cumul_rent,
+                    house_value=V_t,
+                    remaining_mortgage=rb,
+                    equity=equity,
+                    net_equity=net_equity,
+                    cumul_interest=cumul_interest,
+                    cumul_owner_other=cumul_owner_other,
+                    cumul_owner_cost=cumul_owner_cost,
+                    cashflow_gap=cashflow_gap,
+                    net_advantage=net_advantage,
+                    components={
+                        "appreciation_gain": appreciation_gain,
+                        "principal_built": principal_built,
+                        "interest_drag": -interest_drag,
+                        "opportunity_cost_dp": -opportunity_cost_dp,
+                        "rent_avoided_net": rent_avoided_net,
+                        "closing_costs": -closing_costs,
+                    }
+                ))
+
+        return out
 
     def wealth_comparison_over_time(self, years: int = 30) -> List[Dict]:
         """Compare total wealth between buying vs renting+investing over time."""
