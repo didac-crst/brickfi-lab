@@ -171,7 +171,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             InputProps={{
               endAdornment: '%',
             }}
-            helperText={`${(inputs.amortization_rate * 100).toFixed(2)}% per month`}
+            helperText={`${(inputs.amortization_rate * 100).toFixed(2)}% per year`}
           />
         </Grid>
       </Grid>
@@ -184,18 +184,18 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
             {(() => {
-              // The amortization rate represents the percentage of the loan balance that gets paid down each month
-              // Formula: loan_term_years = 1 / (amortization_rate * 12)
+              // The amortization rate represents the percentage of the loan balance that gets paid down each year
+              // Formula: loan_term_years = 1 / amortization_rate
               if (inputs.amortization_rate <= 0) {
                 return "Invalid rate";
               }
               
-              const loanTermYears = 1 / (inputs.amortization_rate * 12);
+              const loanTermYears = 1 / inputs.amortization_rate;
               return `${loanTermYears.toFixed(1)} years`;
             })()}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Based on {(inputs.amortization_rate * 100).toFixed(2)}% monthly amortization rate
+            Based on {(inputs.amortization_rate * 100).toFixed(2)}% yearly amortization rate
           </Typography>
         </Box>
       )}

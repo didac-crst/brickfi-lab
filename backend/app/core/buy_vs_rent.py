@@ -21,13 +21,13 @@ class BuyVsRentAnalyzer:
     @property
     def term_years(self) -> float:
         """Calculate loan term in years from amortization rate."""
-        # The amortization rate represents the percentage of the loan balance that gets paid down each month
-        # For example: 2% monthly = 50 years, 4% monthly = 25 years, 10% monthly = 10 years
-        # Formula: loan_term_years = 1 / (amortization_rate * 12)
+        # The amortization rate represents the percentage of the loan balance that gets paid down each year
+        # For example: 2% yearly = 50 years, 4% yearly = 25 years, 10% yearly = 10 years
+        # Formula: loan_term_years = 1 / amortization_rate
         if self.i.amortization_rate <= 0:
             return 30.0  # Default fallback
         
-        return 1.0 / (self.i.amortization_rate * 12.0)
+        return 1.0 / self.i.amortization_rate
 
     @staticmethod
     def _pmt(principal: float, annual_rate: float, years: float) -> float:

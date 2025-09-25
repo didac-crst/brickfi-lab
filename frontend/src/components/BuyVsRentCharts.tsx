@@ -41,8 +41,8 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
     // Calculate when loan is paid off using the simple formula
     let loanPayoffYear = 30; // Default to 30 years if calculation fails
     if (amortizationRate > 0) {
-      // Formula: loan_term_years = 1 / (amortization_rate * 12)
-      loanPayoffYear = Math.ceil(1 / (amortizationRate * 12));
+      // Formula: loan_term_years = 1 / amortization_rate
+      loanPayoffYear = Math.ceil(1 / amortizationRate);
     }
     
     // Calculate ongoing costs after loan payoff (property tax + insurance + maintenance)
@@ -94,8 +94,8 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
     // Calculate loan payoff year using the simple formula
     let loanPayoffYear = 30;
     if (amortizationRate > 0) {
-      // Formula: loan_term_years = 1 / (amortization_rate * 12)
-      loanPayoffYear = Math.ceil(1 / (amortizationRate * 12));
+      // Formula: loan_term_years = 1 / amortization_rate
+      loanPayoffYear = Math.ceil(1 / amortizationRate);
     }
     
     for (let year = 1; year <= 30; year++) {
