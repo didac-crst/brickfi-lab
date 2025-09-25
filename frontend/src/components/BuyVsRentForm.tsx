@@ -17,13 +17,13 @@ interface BuyVsRentFormProps {
   loading: boolean;
 }
 
-const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }) => {
+const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }: BuyVsRentFormProps) => {
   const [inputs, setInputs] = useState<BuyVsRentInputs>({
     price: 420000,
     fees_pct: 0.075,
     down_payment: 100000,
     annual_rate: 0.032,
-    term_years: 25,
+    amortization_rate: 0.004,
     monthly_rent: 1700,
     taxe_fonciere_monthly: 180,
     insurance_monthly: 50,
@@ -103,7 +103,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Property Price"
             type="number"
             value={inputs.price}
-            onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('price', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}
@@ -117,7 +117,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Down Payment"
             type="number"
             value={inputs.down_payment}
-            onChange={(e) => handleInputChange('down_payment', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('down_payment', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}
@@ -131,7 +131,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Purchase Fees"
             type="number"
             value={inputs.fees_pct * 100}
-            onChange={(e) => handleInputChange('fees_pct', (parseFloat(e.target.value) || 0) / 100)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('fees_pct', (parseFloat(e.target.value) || 0) / 100)}
             InputProps={{
               endAdornment: '%',
             }}
@@ -153,7 +153,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Interest Rate"
             type="number"
             value={inputs.annual_rate * 100}
-            onChange={(e) => handleInputChange('annual_rate', (parseFloat(e.target.value) || 0) / 100)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('annual_rate', (parseFloat(e.target.value) || 0) / 100)}
             InputProps={{
               endAdornment: '%',
             }}
@@ -164,13 +164,14 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         <Grid item xs={6}>
           <TextField
             fullWidth
-            label="Loan Term"
+            label="Amortization Rate"
             type="number"
-            value={inputs.term_years}
-            onChange={(e) => handleInputChange('term_years', parseInt(e.target.value) || 0)}
+            value={inputs.amortization_rate * 100}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amortization_rate', (parseFloat(e.target.value) || 0) / 100)}
             InputProps={{
-              endAdornment: 'years',
+              endAdornment: '%',
             }}
+            helperText={`${(inputs.amortization_rate * 100).toFixed(2)}% per month`}
           />
         </Grid>
       </Grid>
@@ -188,7 +189,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Property Tax (Monthly)"
             type="number"
             value={inputs.taxe_fonciere_monthly}
-            onChange={(e) => handleInputChange('taxe_fonciere_monthly', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('taxe_fonciere_monthly', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}
@@ -201,7 +202,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Insurance (Monthly)"
             type="number"
             value={inputs.insurance_monthly}
-            onChange={(e) => handleInputChange('insurance_monthly', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('insurance_monthly', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}
@@ -214,7 +215,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Maintenance (Annual %)"
             type="number"
             value={inputs.maintenance_pct_annual * 100}
-            onChange={(e) => handleInputChange('maintenance_pct_annual', (parseFloat(e.target.value) || 0) / 100)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('maintenance_pct_annual', (parseFloat(e.target.value) || 0) / 100)}
             InputProps={{
               endAdornment: '%',
             }}
@@ -236,7 +237,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Monthly Rent"
             type="number"
             value={inputs.monthly_rent}
-            onChange={(e) => handleInputChange('monthly_rent', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('monthly_rent', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}
@@ -249,7 +250,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             label="Renter Insurance"
             type="number"
             value={inputs.renter_insurance_monthly}
-            onChange={(e) => handleInputChange('renter_insurance_monthly', parseFloat(e.target.value) || 0)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('renter_insurance_monthly', parseFloat(e.target.value) || 0)}
             InputProps={{
               startAdornment: '€',
             }}

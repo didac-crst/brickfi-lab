@@ -33,18 +33,48 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
     // Use actual down payment from inputs, fallback to mortgage amount if not available
     const downPayment = inputs?.down_payment || analysis.mortgage_amount;
     
+    // Calculate loan payoff year based on amortization rate
+    const annualRate = inputs?.annual_rate || 0.04;
+    const amortizationRate = inputs?.amortization_rate || 0.004;
+    const mortgageAmount = analysis.mortgage_amount;
+    
+    // Calculate when loan is paid off (simplified calculation)
+    let loanPayoffYear = 30; // Default to 30 years if calculation fails
+    if (amortizationRate > 0 && annualRate > 0) {
+      // Using the formula: n = -log(1 - amortization_rate) / log(1 + annual_rate/12) / 12
+      const monthlyRate = annualRate / 12;
+      const monthsToPayoff = -Math.log(1 - amortizationRate) / Math.log(1 + monthlyRate);
+      loanPayoffYear = Math.ceil(monthsToPayoff / 12);
+    }
+    
+    // Calculate ongoing costs after loan payoff (property tax + insurance + maintenance)
+    const monthlyPropertyTax = inputs?.taxe_fonciere_monthly || 180;
+    const monthlyInsurance = inputs?.insurance_monthly || 50;
+    const monthlyMaintenance = (inputs?.price || 420000) * (inputs?.maintenance_pct_annual || 0.009) / 12;
+    const monthlyOngoingCosts = monthlyPropertyTax + monthlyInsurance + monthlyMaintenance;
+    
     for (let year = 0; year <= 30; year++) {
       const cumulativeRent = monthlyRent * 12 * year;
-      const cumulativeOwner = monthlyOwnerCost * 12 * year;
       
-      // Add down payment to ownership costs from year 0
-      const totalOwnershipCost = year === 0 ? downPayment : downPayment + cumulativeOwner;
+      let cumulativeOwner;
+      if (year === 0) {
+        // Year 0: only down payment
+        cumulativeOwner = downPayment;
+      } else if (year <= loanPayoffYear) {
+        // During loan period: down payment + monthly owner costs
+        cumulativeOwner = downPayment + (monthlyOwnerCost * 12 * year);
+      } else {
+        // After loan payoff: down payment + loan period costs + ongoing costs
+        const loanPeriodCosts = monthlyOwnerCost * 12 * loanPayoffYear;
+        const ongoingCosts = monthlyOngoingCosts * 12 * (year - loanPayoffYear);
+        cumulativeOwner = downPayment + loanPeriodCosts + ongoingCosts;
+      }
       
       data.push({
         year,
         rent: cumulativeRent,
-        ownership: totalOwnershipCost,
-        savings: cumulativeRent - totalOwnershipCost,
+        ownership: cumulativeOwner,
+        savings: cumulativeRent - cumulativeOwner,
         downPayment: year === 0 ? downPayment : 0
       });
     }
@@ -59,15 +89,24 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
     const mortgageAmount = analysis.mortgage_amount;
     // Use actual interest rate from inputs, fallback to 4% if not available
     const annualRate = inputs?.annual_rate || 0.04;
+    const amortizationRate = inputs?.amortization_rate || 0.004;
     
     let remainingBalance = mortgageAmount;
+    
+    // Calculate loan payoff year
+    let loanPayoffYear = 30;
+    if (amortizationRate > 0 && annualRate > 0) {
+      const monthlyRate = annualRate / 12;
+      const monthsToPayoff = -Math.log(1 - amortizationRate) / Math.log(1 + monthlyRate);
+      loanPayoffYear = Math.ceil(monthsToPayoff / 12);
+    }
     
     for (let year = 1; year <= 30; year++) {
       let yearlyInterest = 0;
       let yearlyPrincipal = 0;
       
       // If loan is already paid off, don't show any payments
-      if (remainingBalance <= 0) {
+      if (remainingBalance <= 0 || year > loanPayoffYear) {
         data.push({
           year,
           interest: 0,

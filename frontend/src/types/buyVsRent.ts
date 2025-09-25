@@ -3,7 +3,7 @@ export interface BuyVsRentInputs {
   fees_pct: number;
   down_payment: number;
   annual_rate: number;
-  term_years: number;
+  amortization_rate: number; // Monthly amortization rate (e.g., 0.004 for 0.4% per month)
   monthly_rent: number;
   taxe_fonciere_monthly: number;
   insurance_monthly: number;

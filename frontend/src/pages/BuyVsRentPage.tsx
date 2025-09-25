@@ -72,8 +72,8 @@ const BuyVsRentPage: React.FC = () => {
           down_payment_description: "Cash payment toward the purchase price in euros",
           annual_rate: inputs.annual_rate,
           annual_rate_description: "Fixed mortgage nominal annual interest rate",
-          term_years: inputs.term_years,
-          term_years_description: "Mortgage loan term in years"
+          amortization_rate: inputs.amortization_rate,
+          amortization_rate_description: "Monthly amortization rate (e.g., 0.4% per month)"
         },
         monthly_costs: {
           monthly_rent: inputs.monthly_rent,

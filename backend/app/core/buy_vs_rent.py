@@ -18,8 +18,29 @@ class BuyVsRentAnalyzer:
         """Loan amount M = P - D."""
         return self.i.price - self.i.down_payment
 
+    @property
+    def term_years(self) -> float:
+        """Calculate loan term in years from amortization rate."""
+        # For a given amortization rate, we can calculate the term using the formula:
+        # n = -log(1 - (P * r) / A) / log(1 + r)
+        # where P = principal, r = monthly rate, A = monthly payment, n = number of months
+        # But since we have amortization rate, we can use a simpler approach:
+        # If amortization_rate is the monthly principal payment rate, then:
+        # term_years = -log(1 - amortization_rate) / (12 * log(1 + annual_rate/12))
+        import math
+        monthly_rate = self.i.annual_rate / 12.0
+        if monthly_rate == 0:
+            # If no interest, term is just principal / (amortization_rate * principal)
+            return 1.0 / (self.i.amortization_rate * 12.0)
+        
+        # Calculate term using amortization rate
+        # amortization_rate = monthly_principal_payment / remaining_principal
+        # This gives us the number of months to pay off the loan
+        months = -math.log(1 - self.i.amortization_rate) / math.log(1 + monthly_rate)
+        return months / 12.0
+
     @staticmethod
-    def _pmt(principal: float, annual_rate: float, years: int) -> float:
+    def _pmt(principal: float, annual_rate: float, years: float) -> float:
         """Amortizing monthly payment (principal + interest)."""
         r_m = annual_rate / 12.0
         n = 12 * years
@@ -29,7 +50,7 @@ class BuyVsRentAnalyzer:
 
     def monthly_payment(self) -> float:
         """Return standard monthly principal+interest payment."""
-        return self._pmt(self.mortgage_amount, self.i.annual_rate, self.i.term_years)
+        return self._pmt(self.mortgage_amount, self.i.annual_rate, self.term_years)
 
     def owner_monthly_cost_year1(self) -> float:
         """First-year *economic* owner cost (excl. principal)."""
@@ -119,10 +140,10 @@ class BuyVsRentAnalyzer:
             # Approximate remaining principal after N months
             if monthly_rate > 0:
                 remaining_principal = self.mortgage_amount * (
-                    (1 + monthly_rate) ** (12 * self.i.term_years) - 
+                    (1 + monthly_rate) ** (12 * self.term_years) - 
                     (1 + monthly_rate) ** month
                 ) / (
-                    (1 + monthly_rate) ** (12 * self.i.term_years) - 1
+                    (1 + monthly_rate) ** (12 * self.term_years) - 1
                 )
             
             interest_payment = remaining_principal * monthly_rate

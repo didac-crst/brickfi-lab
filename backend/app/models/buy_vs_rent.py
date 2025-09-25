@@ -10,7 +10,7 @@ class BuyVsRentInputs(BaseModel):
     fees_pct: float = Field(..., description="Upfront purchase costs as fraction of price", ge=0, lt=0.2)
     down_payment: float = Field(..., description="Cash used toward the price (euros)", ge=0)
     annual_rate: float = Field(..., description="Fixed mortgage nominal annual rate", gt=0, lt=0.2)
-    term_years: int = Field(..., description="Loan term in years", ge=1, le=40)
+    amortization_rate: float = Field(..., description="Monthly amortization rate (e.g., 0.004 for 0.4% per month)", gt=0, lt=0.1)
     monthly_rent: float = Field(..., description="Comparable market rent (euros)", ge=0)
     taxe_fonciere_monthly: float = Field(..., description="Property tax monthly equivalent (euros)", ge=0)
     insurance_monthly: float = Field(..., description="Borrower insurance monthly cost (euros)", ge=0)
@@ -24,7 +24,7 @@ class BuyVsRentInputs(BaseModel):
                 "fees_pct": 0.075,
                 "down_payment": 100000,
                 "annual_rate": 0.032,
-                "term_years": 25,
+                "amortization_rate": 0.004,
                 "monthly_rent": 1700,
                 "taxe_fonciere_monthly": 180,
                 "insurance_monthly": 50,
