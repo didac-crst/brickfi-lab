@@ -220,6 +220,7 @@ const BuyVsRentPage: React.FC = () => {
                 
                 <BuyVsRentCharts 
                   analysis={analysis} 
+                  inputs={inputs || undefined}
                   sensitivity={sensitivity || undefined}
                   loading={loading}
                 />

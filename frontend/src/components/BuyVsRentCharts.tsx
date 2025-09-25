@@ -9,36 +9,93 @@ import {
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  BarChart,
-  Bar,
   ScatterChart,
   Scatter,
-  Cell
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
-import { BuyVsRentSummary, SensitivityResult } from '../types/buyVsRent';
+import { BuyVsRentSummary, SensitivityResult, BuyVsRentInputs } from '../types/buyVsRent';
 
 interface BuyVsRentChartsProps {
   analysis: BuyVsRentSummary;
+  inputs?: BuyVsRentInputs;
   sensitivity?: SensitivityResult[];
   loading: boolean;
 }
 
-const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity, loading }: BuyVsRentChartsProps) => {
+const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sensitivity, loading }: BuyVsRentChartsProps) => {
   // Generate cost comparison data over time (30 years)
   const generateCostComparisonData = () => {
     const data = [];
     const monthlyRent = analysis.monthly_rent_total;
     const monthlyOwnerCost = analysis.owner_cost_month1;
+    // Use actual down payment from inputs, fallback to mortgage amount if not available
+    const downPayment = inputs?.down_payment || analysis.mortgage_amount;
     
-    for (let year = 1; year <= 30; year++) {
+    for (let year = 0; year <= 30; year++) {
       const cumulativeRent = monthlyRent * 12 * year;
       const cumulativeOwner = monthlyOwnerCost * 12 * year;
+      
+      // Add down payment to ownership costs from year 0
+      const totalOwnershipCost = year === 0 ? downPayment : downPayment + cumulativeOwner;
       
       data.push({
         year,
         rent: cumulativeRent,
-        ownership: cumulativeOwner,
-        savings: cumulativeRent - cumulativeOwner
+        ownership: totalOwnershipCost,
+        savings: cumulativeRent - totalOwnershipCost,
+        downPayment: year === 0 ? downPayment : 0
+      });
+    }
+    
+    return data;
+  };
+
+  // Generate mortgage breakdown data over time
+  const generateMortgageBreakdownData = () => {
+    const data = [];
+    const monthlyPayment = analysis.monthly_PI;
+    const mortgageAmount = analysis.mortgage_amount;
+    // Use actual interest rate from inputs, fallback to 4% if not available
+    const annualRate = inputs?.annual_rate || 0.04;
+    
+    let remainingBalance = mortgageAmount;
+    
+    for (let year = 1; year <= 30; year++) {
+      let yearlyInterest = 0;
+      let yearlyPrincipal = 0;
+      
+      // If loan is already paid off, don't show any payments
+      if (remainingBalance <= 0) {
+        data.push({
+          year,
+          interest: 0,
+          principal: 0,
+          totalPayment: 0,
+          remainingBalance: 0
+        });
+        continue;
+      }
+      
+      // Calculate monthly payments for the year
+      for (let month = 1; month <= 12; month++) {
+        if (remainingBalance <= 0) break;
+        
+        const monthlyInterest = remainingBalance * (annualRate / 12);
+        const monthlyPrincipal = Math.min(monthlyPayment - monthlyInterest, remainingBalance);
+        
+        yearlyInterest += monthlyInterest;
+        yearlyPrincipal += monthlyPrincipal;
+        remainingBalance -= monthlyPrincipal;
+      }
+      
+      data.push({
+        year,
+        interest: yearlyInterest,
+        principal: yearlyPrincipal,
+        totalPayment: yearlyInterest + yearlyPrincipal,
+        remainingBalance: Math.max(0, remainingBalance)
       });
     }
     
@@ -62,6 +119,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity
   };
 
   const costComparisonData = generateCostComparisonData();
+  const mortgageBreakdownData = generateMortgageBreakdownData();
   const sensitivityData = generateSensitivityData();
 
   const COLORS = ['#1976d2', '#dc004e', '#2e7d32', '#f57c00', '#7b1fa2'];
@@ -88,7 +146,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity
                   <Tooltip 
                     formatter={(value: any, name: any) => [
                       `€${Number(value).toLocaleString()}`, 
-                      name === 'rent' ? 'Rent' : name === 'ownership' ? 'Ownership' : 'Savings'
+                      name === 'rent' ? 'Rent' : name === 'ownership' ? 'Ownership (incl. down payment)' : 'Savings'
                     ]}
                     labelFormatter={(label: any) => `Year ${label}`}
                   />
@@ -105,7 +163,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity
                     dataKey="ownership" 
                     stroke="#1976d2" 
                     strokeWidth={2}
-                    name="Ownership"
+                    name="Ownership (incl. down payment)"
                   />
                   <Line 
                     type="monotone" 
@@ -128,38 +186,95 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity
                 Break-even Analysis
               </Typography>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={[
-                  { 
-                    category: 'Break-even', 
-                    years: analysis.break_even_years || 0,
-                    color: analysis.break_even_years ? '#2e7d32' : '#dc004e'
-                  }
-                ]}>
+                <LineChart data={costComparisonData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis label={{ value: 'Years', angle: -90, position: 'insideLeft' }} />
+                  <XAxis dataKey="year" />
+                  <YAxis />
                   <Tooltip 
-                    formatter={(value: any) => [
-                      `${value} years`, 
-                      'Break-even Point'
+                    formatter={(value: any, name: any) => [
+                      `€${Number(value).toLocaleString()}`, 
+                      name === 'savings' ? 'Savings vs Rent' : name
                     ]}
+                    labelFormatter={(label: any) => `Year ${label}`}
                   />
-                  <Bar dataKey="years" fill="#1976d2" />
-                </BarChart>
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="savings" 
+                    stroke="#2e7d32" 
+                    strokeWidth={3}
+                    name="Savings vs Rent"
+                    dot={{ fill: '#2e7d32', strokeWidth: 2, r: 4 }}
+                  />
+                  {/* Add a horizontal line at y=0 to show break-even */}
+                  <Line 
+                    type="monotone" 
+                    dataKey={() => 0} 
+                    stroke="#757575" 
+                    strokeWidth={1}
+                    strokeDasharray="5 5"
+                    name="Break-even Line"
+                    dot={false}
+                  />
+                </LineChart>
               </ResponsiveContainer>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {analysis.break_even_years 
-                  ? `Break-even occurs after ${analysis.break_even_years} years`
-                  : 'No break-even point within reasonable timeframe'
+                  ? `Break-even occurs after ${analysis.break_even_years} years (including down payment)`
+                  : 'No break-even point within 30 years (including down payment)'
                 }
               </Typography>
             </CardContent>
           </Card>
         </Grid>
 
+        {/* Mortgage Breakdown */}
+        <Grid item xs={12} lg={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Mortgage Breakdown Over Time
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={mortgageBreakdownData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" />
+                  <YAxis />
+                  <Tooltip 
+                    formatter={(value: any, name: any) => [
+                      `€${Number(value).toLocaleString()}`, 
+                      name === 'interest' ? 'Interest' : name === 'principal' ? 'Principal' : 'Total'
+                    ]}
+                    labelFormatter={(label: any) => `Year ${label}`}
+                  />
+                  <Legend />
+                  <Area 
+                    type="monotone" 
+                    dataKey="interest" 
+                    stackId="1" 
+                    stroke="#dc004e" 
+                    fill="#dc004e" 
+                    fillOpacity={0.6}
+                    name="Interest"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="principal" 
+                    stackId="1" 
+                    stroke="#2e7d32" 
+                    fill="#2e7d32" 
+                    fillOpacity={0.6}
+                    name="Principal"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
         {/* Sensitivity Analysis */}
         {sensitivityData.length > 0 && (
-          <Grid item xs={12}>
+          <Grid item xs={12} lg={6}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -193,7 +308,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, sensitivity
                       }}
                     />
                     <Scatter dataKey="annualSaving" fill="#1976d2">
-                      {sensitivityData.map((entry, index) => (
+                      {sensitivityData.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Scatter>
