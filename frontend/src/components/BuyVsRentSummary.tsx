@@ -32,6 +32,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
   const breakEvenExists = analysis.break_even_years !== null;
 
   const summaryCards = [
+    // First row - Property and financing
     {
       title: 'Property Price',
       value: formatCurrency(analysis.property_price),
@@ -45,8 +46,8 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       color: '#e0f2f1',
     },
     {
-      title: 'Monthly Credit Repayment',
-      value: formatCurrency(analysis.monthly_PI),
+      title: 'Credit Borrowed',
+      value: formatCurrency(analysis.mortgage_amount),
       icon: <TrendingUp sx={{ color: 'warning.main' }} />,
       color: '#fff3e0',
     },
@@ -55,6 +56,13 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       value: formatCurrency(analysis.total_interest_paid),
       icon: <TrendingUp sx={{ color: 'error.main' }} />,
       color: '#ffebee',
+    },
+    // Second row - Monthly costs
+    {
+      title: 'Monthly Credit Repayment',
+      value: formatCurrency(analysis.monthly_PI),
+      icon: <TrendingUp sx={{ color: 'warning.main' }} />,
+      color: '#fff3e0',
     },
     {
       title: 'Monthly Owner Cost (Year 1)',
@@ -76,9 +84,31 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
         Analysis Summary
       </Typography>
 
+      {/* First row - Property and financing */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        {summaryCards.slice(0, 4).map((card, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Card sx={{ height: '100%', backgroundColor: card.color }}>
+              <CardContent sx={{ textAlign: 'center', p: 2 }}>
+                <Box sx={{ mb: 1 }}>
+                  {card.icon}
+                </Box>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {card.title}
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  {card.value}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Second row - Monthly costs */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        {summaryCards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={2} key={index}>
+        {summaryCards.slice(4).map((card, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index + 4}>
             <Card sx={{ height: '100%', backgroundColor: card.color }}>
               <CardContent sx={{ textAlign: 'center', p: 2 }}>
                 <Box sx={{ mb: 1 }}>
@@ -104,8 +134,10 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
           </Typography>
           
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            <strong>Monthly Credit Repayment:</strong> Full mortgage payment (principal + interest)<br/>
-            <strong>Monthly Owner Cost (Year 1):</strong> Only the economic cost (interest + taxes + insurance + maintenance)
+            <strong>Monthly Credit Repayment:</strong> Full mortgage payment (principal + interest) - this is what you pay to the bank<br/>
+            <strong>Monthly Owner Cost (Year 1):</strong> Only the "economic cost" (interest + taxes + insurance + maintenance) - excludes principal because it builds equity<br/>
+            <br/>
+            <em>Why is Owner Cost lower? The principal payment builds equity (you're paying yourself), so it's not considered a "cost" in economic analysis.</em>
           </Typography>
         </CardContent>
       </Card>

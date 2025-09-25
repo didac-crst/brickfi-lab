@@ -20,15 +20,15 @@ class BuyVsRentInputs(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "price": 420000,
-                "fees_pct": 0.075,
+                "price": 500000,
+                "fees_pct": 0.10,
                 "down_payment": 100000,
-                "annual_rate": 0.032,
-                "amortization_rate": 0.04,
-                "monthly_rent": 1700,
-                "taxe_fonciere_monthly": 180,
-                "insurance_monthly": 50,
-                "maintenance_pct_annual": 0.009,
+                "annual_rate": 0.03,
+                "amortization_rate": 0.05,
+                "monthly_rent": 2000,
+                "taxe_fonciere_monthly": 0,
+                "insurance_monthly": 0,
+                "maintenance_pct_annual": 0.0,
                 "renter_insurance_monthly": 0
             }
         }
