@@ -6,6 +6,7 @@ import {
   Typography,
   Box,
   Chip,
+  Alert,
 } from '@mui/material';
 import { TrendingUp, TrendingDown, Home, Euro } from '@mui/icons-material';
 import { BuyVsRentSummary as BuyVsRentSummaryType } from '../types/buyVsRent';

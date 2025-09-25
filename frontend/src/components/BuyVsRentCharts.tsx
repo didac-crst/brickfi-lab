@@ -393,7 +393,8 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                     formatter={(value: any, name: any) => [
                       `€${Number(value).toLocaleString()}`, 
                       name === 'house_wealth' ? 'House Wealth' : 
-                      name === 'investment_wealth' ? 'Investment Wealth' : 
+                      name === 'investment_wealth' ? 'Total Investment Wealth' : 
+                      name === 'pure_investment_value' ? 'Pure Investment (Down Payment + Returns)' :
                       name === 'wealth_difference' ? 'Wealth Difference' : name
                     ]}
                     labelFormatter={(label: any) => `Year ${label}`}
@@ -412,8 +413,17 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                     dataKey="investment_wealth" 
                     stroke="#2e7d32" 
                     strokeWidth={3}
-                    name="Investment Wealth"
+                    name="Total Investment Wealth"
                     dot={{ r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="pure_investment_value" 
+                    stroke="#4caf50" 
+                    strokeWidth={2}
+                    strokeDasharray="3 3"
+                    name="Pure Investment (Down Payment + Returns)"
+                    dot={{ r: 3 }}
                   />
                   <Line 
                     type="monotone" 

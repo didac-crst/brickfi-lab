@@ -237,7 +237,7 @@ class BuyVsRentAnalyzer:
         return results
 
     def investment_value_over_time(self, years: int = 30) -> List[Dict]:
-        """Calculate investment value over time if down payment was invested instead."""
+        """Calculate pure investment value over time if down payment was invested instead."""
         results = []
         current_value = self.i.down_payment
         
@@ -246,6 +246,21 @@ class BuyVsRentAnalyzer:
                 "year": year,
                 "investment_value": current_value,
                 "gains": current_value - self.i.down_payment
+            })
+            current_value *= (1 + self.i.investment_return_rate)
+        
+        return results
+
+    def pure_investment_wealth_over_time(self, years: int = 30) -> List[Dict]:
+        """Calculate pure investment wealth (down payment + returns) - completely independent of mortgage rates."""
+        results = []
+        current_value = self.i.down_payment
+        
+        for year in range(years + 1):
+            results.append({
+                "year": year,
+                "pure_investment_value": current_value,
+                "investment_gains": current_value - self.i.down_payment
             })
             current_value *= (1 + self.i.investment_return_rate)
         
@@ -277,10 +292,12 @@ class BuyVsRentAnalyzer:
             
             house_wealth = house_value - remaining_balance
             
-            # Investment wealth = investment value + cumulative savings from renting
+            # Investment wealth = pure investment value (independent of mortgage rate)
+            # + cumulative savings from renting (which does depend on mortgage rate)
             investment_value = investment_values[year]["investment_value"]
             
             # Calculate cumulative savings from renting (monthly savings * 12 months)
+            # This DOES depend on mortgage rate because it affects owner costs
             if year == 0:
                 cumulative_savings = 0
             else:
@@ -300,8 +317,8 @@ class BuyVsRentAnalyzer:
                 "wealth_difference": wealth_difference,
                 "house_value": house_value,
                 "remaining_mortgage": remaining_balance,
-                "investment_value": investment_value,
-                "cumulative_savings": cumulative_savings
+                "pure_investment_value": investment_value,  # Pure investment (independent of mortgage)
+                "cumulative_savings": cumulative_savings  # Renting savings (depends on mortgage)
             })
         
         return results
