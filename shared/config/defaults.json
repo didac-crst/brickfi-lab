@@ -11,6 +11,8 @@
     "maintenance_pct_annual": 0.0,
     "renter_insurance_monthly": 0,
     "house_appreciation_rate": 0.02,
-    "investment_return_rate": 0.07
+    "investment_return_rate": 0.07,
+    "baseline_mode": "pure_renter",
+    "sell_on_horizon": false
   }
 }

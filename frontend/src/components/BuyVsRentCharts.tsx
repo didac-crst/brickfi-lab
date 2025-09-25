@@ -160,25 +160,41 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
 
   const COLORS = ['#1976d2', '#dc004e', '#2e7d32', '#f57c00', '#7b1fa2'];
 
-  // Generate wealth comparison data over time
-  const generateWealthComparisonData = async () => {
-    if (!inputs) return [];
-    
-    try {
-      const { buyVsRentApi } = await import('../utils/api');
-      const wealthData = await buyVsRentApi.getWealthComparisonOverTime(inputs, 30);
-      return wealthData;
-    } catch (error) {
-      console.error('Failed to fetch wealth comparison data:', error);
-      return [];
-    }
-  };
+    // Generate wealth comparison data over time
+    const generateWealthComparisonData = async () => {
+      if (!inputs) return [];
+      
+      try {
+        const { buyVsRentApi } = await import('../utils/api');
+        const wealthData = await buyVsRentApi.getWealthComparisonOverTime(inputs, 30);
+        return wealthData;
+      } catch (error) {
+        console.error('Failed to fetch wealth comparison data:', error);
+        return [];
+      }
+    };
+
+    // Generate net advantage data over time
+    const generateNetAdvantageData = async () => {
+      if (!inputs) return [];
+      
+      try {
+        const { buyVsRentApi } = await import('../utils/api');
+        const netAdvantageData = await buyVsRentApi.getNetAdvantageOverTime(inputs, 30);
+        return netAdvantageData;
+      } catch (error) {
+        console.error('Failed to fetch net advantage data:', error);
+        return [];
+      }
+    };
 
   const [wealthData, setWealthData] = React.useState<any[]>([]);
+  const [netAdvantageData, setNetAdvantageData] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     if (inputs) {
       generateWealthComparisonData().then(setWealthData);
+      generateNetAdvantageData().then(setNetAdvantageData);
     }
   }, [inputs]);
 
@@ -438,15 +454,82 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </Grid>
+          </Grid>
 
-        {/* Summary Metrics */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Key Metrics
-              </Typography>
+          {/* Net Advantage Over Time */}
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Net Advantage Over Time (Buy vs Pure Renter Baseline)
+                </Typography>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={netAdvantageData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="year" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: any, name: any) => [
+                        `€${Number(value).toLocaleString()}`, 
+                        name === 'net_advantage' ? 'Net Advantage (Buy - Baseline)' : 
+                        name === 'net_equity' ? 'Owner Equity' : 
+                        name === 'baseline_liquid' ? 'Pure Renter Baseline (DP compounded)' :
+                        name === 'cashflow_gap' ? 'Cashflow Gap (Rent - Owner Costs)' : name
+                      ]}
+                      labelFormatter={(label: any) => `Year ${label}`}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="net_advantage" 
+                      stroke="#1976d2" 
+                      strokeWidth={4}
+                      name="Net Advantage (Buy - Baseline)"
+                      dot={{ r: 5 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="net_equity" 
+                      stroke="#2e7d32" 
+                      strokeWidth={2}
+                      name="Owner Equity"
+                      dot={{ r: 3 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="baseline_liquid" 
+                      stroke="#f57c00" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      name="Pure Renter Baseline (DP compounded)"
+                      dot={{ r: 3 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="cashflow_gap" 
+                      stroke="#7b1fa2" 
+                      strokeWidth={2}
+                      strokeDasharray="3 3"
+                      name="Cashflow Gap (Rent - Owner Costs)"
+                      dot={{ r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                  <strong>Net Advantage:</strong> The total benefit of buying vs pure renter baseline (down payment compounded independently). 
+                  Positive values indicate buying is better. This baseline is completely independent of mortgage rates.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Summary Metrics */}
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Key Metrics
+                </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">

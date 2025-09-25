@@ -125,3 +125,41 @@ async def get_wealth_comparison_over_time(inputs: BuyVsRentInputs, years: int = 
         return analyzer.wealth_comparison_over_time(years)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/pure-renter-baseline-over-time")
+async def get_pure_renter_baseline_over_time(inputs: BuyVsRentInputs, years: int = 30):
+    """
+    Calculate pure renter baseline: down payment compounded at investment rate (rate-independent).
+    
+    Args:
+        inputs: Buy vs rent analysis inputs
+        years: Number of years to project (default: 30)
+    
+    Returns:
+        List of yearly pure renter baseline values
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.pure_renter_baseline_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/net-advantage-over-time")
+async def get_net_advantage_over_time(inputs: BuyVsRentInputs, years: int = 30):
+    """
+    Calculate net advantage of buying vs pure renter baseline with component breakdown.
+    
+    Args:
+        inputs: Buy vs rent analysis inputs
+        years: Number of years to project (default: 30)
+    
+    Returns:
+        List of yearly net advantage calculations with component breakdown
+    """
+    try:
+        analyzer = BuyVsRentAnalyzer(inputs)
+        return analyzer.net_advantage_over_time(years)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -18,6 +18,8 @@ class BuyVsRentInputs(BaseModel):
     renter_insurance_monthly: float = Field(0.0, description="Optional renter insurance (euros)", ge=0)
     house_appreciation_rate: float = Field(..., description="Annual house appreciation rate (e.g., 0.02 for 2% per year)", ge=0, lt=0.2)
     investment_return_rate: float = Field(..., description="Annual investment return rate for down payment (e.g., 0.07 for 7% per year)", ge=0, lt=0.3)
+    baseline_mode: str = Field("pure_renter", description="Baseline comparison mode: 'pure_renter' (DP compounded) or 'budget_matched' (legacy)", pattern="^(pure_renter|budget_matched)$")
+    sell_on_horizon: bool = Field(False, description="Whether to sell the house at the evaluation horizon")
 
     class Config:
         json_schema_extra = {
@@ -60,6 +62,10 @@ class BuyVsRentSummary(BaseModel):
     house_wealth_30_years: float
     investment_wealth_30_years: float
     wealth_crossover_year: Optional[int]
+    # Pure renter baseline metrics
+    baseline_liquid_30_years: float
+    net_advantage_30_years: float
+    cashflow_gap_30_years: float
 
     class Config:
         json_schema_extra = {

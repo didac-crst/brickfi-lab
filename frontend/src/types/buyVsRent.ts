@@ -11,6 +11,8 @@ export interface BuyVsRentInputs {
   renter_insurance_monthly: number;
   house_appreciation_rate: number; // Annual house appreciation rate (e.g., 0.02 for 2% per year)
   investment_return_rate: number; // Annual investment return rate for down payment (e.g., 0.07 for 7% per year)
+  baseline_mode: 'pure_renter' | 'budget_matched'; // Baseline comparison mode
+  sell_on_horizon: boolean; // Whether to sell the house at the evaluation horizon
 }
 
 export interface BuyVsRentSummary {
@@ -34,6 +36,10 @@ export interface BuyVsRentSummary {
   house_wealth_30_years: number;
   investment_wealth_30_years: number;
   wealth_crossover_year: number | null;
+  // Pure renter baseline metrics
+  baseline_liquid_30_years: number;
+  net_advantage_30_years: number;
+  cashflow_gap_30_years: number;
 }
 
 export interface SensitivityResult {

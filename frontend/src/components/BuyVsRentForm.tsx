@@ -7,6 +7,13 @@ import {
   Grid,
   Divider,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
@@ -279,40 +286,80 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
       </Grid>
 
-      <Divider sx={{ my: 3 }}>
-        <Typography variant="h6" color="text.secondary">
-          Investment & Appreciation
-        </Typography>
-      </Divider>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="h6" color="text.secondary">
+              Investment & Appreciation
+            </Typography>
+          </Divider>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="House Appreciation Rate"
-            type="number"
-            value={inputs.house_appreciation_rate * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('house_appreciation_rate', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText="Annual house value appreciation (e.g., 2% per year)"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Investment Return Rate"
-            type="number"
-            value={inputs.investment_return_rate * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('investment_return_rate', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText="Annual return if down payment was invested (e.g., 7% per year)"
-          />
-        </Grid>
-      </Grid>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="House Appreciation Rate"
+                type="number"
+                value={inputs.house_appreciation_rate * 100}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('house_appreciation_rate', (parseFloat(e.target.value) || 0) / 100)}
+                InputProps={{
+                  endAdornment: '%',
+                }}
+                helperText="Annual house value appreciation (e.g., 2% per year)"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Investment Return Rate"
+                type="number"
+                value={inputs.investment_return_rate * 100}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('investment_return_rate', (parseFloat(e.target.value) || 0) / 100)}
+                InputProps={{
+                  endAdornment: '%',
+                }}
+                helperText="Annual return if down payment was invested (e.g., 7% per year)"
+              />
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="h6" color="text.secondary">
+              Analysis Options
+            </Typography>
+          </Divider>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Baseline Comparison Mode</InputLabel>
+                <Select
+                  value={inputs.baseline_mode}
+                  onChange={(e) => handleInputChange('baseline_mode', e.target.value as 'pure_renter' | 'budget_matched')}
+                  label="Baseline Comparison Mode"
+                >
+                  <MenuItem value="pure_renter">Pure Renter (DP compounded)</MenuItem>
+                  <MenuItem value="budget_matched">Budget-Matched Renter (legacy)</MenuItem>
+                </Select>
+                <FormHelperText>
+                  Pure renter: Down payment invested independently. Budget-matched: Renter path depends on owner costs.
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={inputs.sell_on_horizon}
+                    onChange={(e) => handleInputChange('sell_on_horizon', e.target.checked)}
+                  />
+                }
+                label="Sell on Horizon"
+              />
+              <FormHelperText>
+                Whether to sell the house at the evaluation horizon (30 years)
+              </FormHelperText>
+            </Grid>
+          </Grid>
+
 
       <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
         <Button
