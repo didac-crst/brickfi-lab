@@ -26,6 +26,14 @@ export interface BuyVsRentSummary {
   owner_vs_rent_monthly: number;
   calculated_loan_term_years: number;
   monthly_amortization_rate: number;
+  // Wealth comparison metrics
+  house_wealth_10_years: number;
+  investment_wealth_10_years: number;
+  house_wealth_20_years: number;
+  investment_wealth_20_years: number;
+  house_wealth_30_years: number;
+  investment_wealth_30_years: number;
+  wealth_crossover_year: number | null;
 }
 
 export interface SensitivityResult {

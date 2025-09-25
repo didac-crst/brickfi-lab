@@ -52,6 +52,14 @@ class BuyVsRentSummary(BaseModel):
     owner_vs_rent_monthly: float
     calculated_loan_term_years: float
     monthly_amortization_rate: float
+    # Wealth comparison metrics
+    house_wealth_10_years: float
+    investment_wealth_10_years: float
+    house_wealth_20_years: float
+    investment_wealth_20_years: float
+    house_wealth_30_years: float
+    investment_wealth_30_years: float
+    wealth_crossover_year: Optional[int]
 
     class Config:
         json_schema_extra = {

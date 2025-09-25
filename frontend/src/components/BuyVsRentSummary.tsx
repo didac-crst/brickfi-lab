@@ -78,6 +78,45 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
     },
   ];
 
+  const wealthSummaryCards = [
+    {
+      title: 'House Wealth (10 years)',
+      value: formatCurrency(analysis.house_wealth_10_years),
+      icon: <Home sx={{ color: 'primary.main' }} />,
+      color: '#e3f2fd',
+    },
+    {
+      title: 'Investment Wealth (10 years)',
+      value: formatCurrency(analysis.investment_wealth_10_years),
+      icon: <TrendingUp sx={{ color: 'success.main' }} />,
+      color: '#e8f5e8',
+    },
+    {
+      title: 'House Wealth (20 years)',
+      value: formatCurrency(analysis.house_wealth_20_years),
+      icon: <Home sx={{ color: 'primary.main' }} />,
+      color: '#e3f2fd',
+    },
+    {
+      title: 'Investment Wealth (20 years)',
+      value: formatCurrency(analysis.investment_wealth_20_years),
+      icon: <TrendingUp sx={{ color: 'success.main' }} />,
+      color: '#e8f5e8',
+    },
+    {
+      title: 'House Wealth (30 years)',
+      value: formatCurrency(analysis.house_wealth_30_years),
+      icon: <Home sx={{ color: 'primary.main' }} />,
+      color: '#e3f2fd',
+    },
+    {
+      title: 'Investment Wealth (30 years)',
+      value: formatCurrency(analysis.investment_wealth_30_years),
+      icon: <TrendingUp sx={{ color: 'success.main' }} />,
+      color: '#e8f5e8',
+    },
+  ];
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
@@ -139,6 +178,43 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
             <br/>
             <em>Why is Owner Cost lower? The principal payment builds equity (you're paying yourself), so it's not considered a "cost" in economic analysis.</em>
           </Typography>
+        </CardContent>
+      </Card>
+
+      {/* Wealth Comparison Summary */}
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Wealth Comparison Over Time
+          </Typography>
+          
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            {wealthSummaryCards.map((card, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card sx={{ height: '100%', backgroundColor: card.color }}>
+                  <CardContent sx={{ textAlign: 'center', p: 2 }}>
+                    <Box sx={{ mb: 1 }}>
+                      {card.icon}
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {card.title}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      {card.value}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {analysis.wealth_crossover_year && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Wealth Crossover Point:</strong> Investment strategy overtakes house wealth in year {analysis.wealth_crossover_year}
+              </Typography>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 

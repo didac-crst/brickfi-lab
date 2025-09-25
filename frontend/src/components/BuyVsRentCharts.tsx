@@ -160,6 +160,28 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
 
   const COLORS = ['#1976d2', '#dc004e', '#2e7d32', '#f57c00', '#7b1fa2'];
 
+  // Generate wealth comparison data over time
+  const generateWealthComparisonData = async () => {
+    if (!inputs) return [];
+    
+    try {
+      const { buyVsRentApi } = await import('../utils/api');
+      const wealthData = await buyVsRentApi.getWealthComparisonOverTime(inputs, 30);
+      return wealthData;
+    } catch (error) {
+      console.error('Failed to fetch wealth comparison data:', error);
+      return [];
+    }
+  };
+
+  const [wealthData, setWealthData] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    if (inputs) {
+      generateWealthComparisonData().then(setWealthData);
+    }
+  }, [inputs]);
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -354,6 +376,59 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
             </Card>
           </Grid>
         )}
+
+        {/* Wealth Comparison Over Time */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Wealth Comparison Over Time
+              </Typography>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={wealthData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" />
+                  <YAxis />
+                  <Tooltip 
+                    formatter={(value: any, name: any) => [
+                      `€${Number(value).toLocaleString()}`, 
+                      name === 'house_wealth' ? 'House Wealth' : 
+                      name === 'investment_wealth' ? 'Investment Wealth' : 
+                      name === 'wealth_difference' ? 'Wealth Difference' : name
+                    ]}
+                    labelFormatter={(label: any) => `Year ${label}`}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="house_wealth" 
+                    stroke="#1976d2" 
+                    strokeWidth={3}
+                    name="House Wealth"
+                    dot={{ r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="investment_wealth" 
+                    stroke="#2e7d32" 
+                    strokeWidth={3}
+                    name="Investment Wealth"
+                    dot={{ r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="wealth_difference" 
+                    stroke="#f57c00" 
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Wealth Difference (Buy - Invest)"
+                    dot={{ r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
 
         {/* Summary Metrics */}
         <Grid item xs={12}>

@@ -105,6 +105,24 @@ class BuyVsRentAnalyzer:
         monthly_rent_total = self.i.monthly_rent + self.i.renter_insurance_monthly
         owner_cost_month1 = self.owner_monthly_cost_year1()
         
+        # Calculate wealth comparison data
+        wealth_data = self.wealth_comparison_over_time(30)
+        
+        # Extract wealth at key milestones
+        house_wealth_10 = wealth_data[10]["house_wealth"] if len(wealth_data) > 10 else 0
+        investment_wealth_10 = wealth_data[10]["investment_wealth"] if len(wealth_data) > 10 else 0
+        house_wealth_20 = wealth_data[20]["house_wealth"] if len(wealth_data) > 20 else 0
+        investment_wealth_20 = wealth_data[20]["investment_wealth"] if len(wealth_data) > 20 else 0
+        house_wealth_30 = wealth_data[30]["house_wealth"] if len(wealth_data) > 30 else 0
+        investment_wealth_30 = wealth_data[30]["investment_wealth"] if len(wealth_data) > 30 else 0
+        
+        # Find crossover year (when investment wealth overtakes house wealth)
+        wealth_crossover_year = None
+        for year_data in wealth_data:
+            if year_data["wealth_difference"] < 0:  # Investment wealth > house wealth
+                wealth_crossover_year = year_data["year"]
+                break
+        
         return BuyVsRentSummary(
             property_price=self.i.price,
             total_acquisition_cost=self.i.price + (self.i.fees_pct * self.i.price),
@@ -117,7 +135,15 @@ class BuyVsRentAnalyzer:
             monthly_rent_total=monthly_rent_total,
             owner_vs_rent_monthly=monthly_rent_total - owner_cost_month1,
             calculated_loan_term_years=self.term_years,
-            monthly_amortization_rate=self.i.amortization_rate
+            monthly_amortization_rate=self.i.amortization_rate,
+            # Wealth comparison metrics
+            house_wealth_10_years=house_wealth_10,
+            investment_wealth_10_years=investment_wealth_10,
+            house_wealth_20_years=house_wealth_20,
+            investment_wealth_20_years=investment_wealth_20,
+            house_wealth_30_years=house_wealth_30,
+            investment_wealth_30_years=investment_wealth_30,
+            wealth_crossover_year=wealth_crossover_year
         )
 
     def sensitivity(
