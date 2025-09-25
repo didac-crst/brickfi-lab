@@ -43,6 +43,8 @@ class BuyVsRentSummary(BaseModel):
     break_even_years: Optional[float]
     monthly_rent_total: float
     owner_vs_rent_monthly: float
+    calculated_loan_term_years: float
+    monthly_amortization_rate: float
 
     class Config:
         json_schema_extra = {
@@ -53,7 +55,9 @@ class BuyVsRentSummary(BaseModel):
                 "annual_saving_vs_rent": 3620.00,
                 "break_even_years": 14.50,
                 "monthly_rent_total": 1700,
-                "owner_vs_rent_monthly": 301.67
+                "owner_vs_rent_monthly": 301.67,
+                "calculated_loan_term_years": 20.8,
+                "monthly_amortization_rate": 0.004
             }
         }
 

@@ -16,7 +16,19 @@ export const useBuyVsRentAnalysis = () => {
       const result = await buyVsRentApi.analyze(inputs);
       setAnalysis(result);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Analysis failed');
+      // Handle validation errors properly
+      const errorData = err.response?.data?.detail;
+      if (Array.isArray(errorData)) {
+        // Format validation errors
+        const errorMessages = errorData.map((error: any) => 
+          `${error.loc?.join('.')}: ${error.msg}`
+        );
+        setError(errorMessages.join('; '));
+      } else if (typeof errorData === 'string') {
+        setError(errorData);
+      } else {
+        setError('Analysis failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -35,7 +47,19 @@ export const useBuyVsRentAnalysis = () => {
       });
       setSensitivity(result);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Sensitivity analysis failed');
+      // Handle validation errors properly
+      const errorData = err.response?.data?.detail;
+      if (Array.isArray(errorData)) {
+        // Format validation errors
+        const errorMessages = errorData.map((error: any) => 
+          `${error.loc?.join('.')}: ${error.msg}`
+        );
+        setError(errorMessages.join('; '));
+      } else if (typeof errorData === 'string') {
+        setError(errorData);
+      } else {
+        setError('Sensitivity analysis failed');
+      }
     } finally {
       setLoading(false);
     }

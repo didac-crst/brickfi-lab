@@ -21,23 +21,47 @@ class BuyVsRentAnalyzer:
     @property
     def term_years(self) -> float:
         """Calculate loan term in years from amortization rate."""
-        # For a given amortization rate, we can calculate the term using the formula:
-        # n = -log(1 - (P * r) / A) / log(1 + r)
-        # where P = principal, r = monthly rate, A = monthly payment, n = number of months
-        # But since we have amortization rate, we can use a simpler approach:
-        # If amortization_rate is the monthly principal payment rate, then:
-        # term_years = -log(1 - amortization_rate) / (12 * log(1 + annual_rate/12))
+        # The amortization rate represents the percentage of the monthly payment that goes toward principal
+        # We need to calculate what loan term would result in this amortization rate
         import math
         monthly_rate = self.i.annual_rate / 12.0
+        
         if monthly_rate == 0:
             # If no interest, term is just principal / (amortization_rate * principal)
             return 1.0 / (self.i.amortization_rate * 12.0)
         
-        # Calculate term using amortization rate
-        # amortization_rate = monthly_principal_payment / remaining_principal
-        # This gives us the number of months to pay off the loan
-        months = -math.log(1 - self.i.amortization_rate) / math.log(1 + monthly_rate)
-        return months / 12.0
+        # For a given amortization rate, we need to find the loan term
+        # where the first month's principal payment equals amortization_rate * monthly_payment
+        # This is a complex calculation, so we'll use an iterative approach
+        
+        # Start with a reasonable range and find the term that gives us the desired amortization rate
+        for years in range(1, 41):  # Check terms from 1 to 40 years
+            months = years * 12
+            monthly_payment = self._pmt(self.mortgage_amount, self.i.annual_rate, years)
+            first_month_interest = self.mortgage_amount * monthly_rate
+            first_month_principal = monthly_payment - first_month_interest
+            calculated_amortization_rate = first_month_principal / monthly_payment
+            
+            # Check if this is close to our target amortization rate
+            if abs(calculated_amortization_rate - self.i.amortization_rate) < 0.001:
+                return years
+        
+        # If no exact match found, return the closest one
+        best_years = 25  # Default fallback
+        best_diff = float('inf')
+        for years in range(1, 41):
+            months = years * 12
+            monthly_payment = self._pmt(self.mortgage_amount, self.i.annual_rate, years)
+            first_month_interest = self.mortgage_amount * monthly_rate
+            first_month_principal = monthly_payment - first_month_interest
+            calculated_amortization_rate = first_month_principal / monthly_payment
+            diff = abs(calculated_amortization_rate - self.i.amortization_rate)
+            
+            if diff < best_diff:
+                best_diff = diff
+                best_years = years
+        
+        return best_years
 
     @staticmethod
     def _pmt(principal: float, annual_rate: float, years: float) -> float:
@@ -84,7 +108,9 @@ class BuyVsRentAnalyzer:
             annual_saving_vs_rent=self.annual_saving_vs_rent(),
             break_even_years=self.break_even_years(sell_cost_pct),
             monthly_rent_total=monthly_rent_total,
-            owner_vs_rent_monthly=monthly_rent_total - owner_cost_month1
+            owner_vs_rent_monthly=monthly_rent_total - owner_cost_month1,
+            calculated_loan_term_years=self.term_years,
+            monthly_amortization_rate=self.i.amortization_rate
         )
 
     def sensitivity(

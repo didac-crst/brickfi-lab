@@ -132,6 +132,48 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
         </CardContent>
       </Card>
 
+      {/* Loan Details */}
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+            Loan Details
+          </Typography>
+          
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body1">
+                  <strong>Calculated Loan Term:</strong>
+                </Typography>
+                <Chip
+                  label={`${formatNumber(analysis.calculated_loan_term_years, 1)} years`}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Box>
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body1">
+                  <strong>Monthly Amortization Rate:</strong>
+                </Typography>
+                <Chip
+                  label={`${(analysis.monthly_amortization_rate * 100).toFixed(2)}%`}
+                  color="secondary"
+                  variant="outlined"
+                />
+              </Box>
+            </Grid>
+          </Grid>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            Based on your amortization rate of {(analysis.monthly_amortization_rate * 100).toFixed(2)}% per month, 
+            the loan will be paid off in approximately {formatNumber(analysis.calculated_loan_term_years, 1)} years.
+          </Typography>
+        </CardContent>
+      </Card>
+
       {/* Monthly Comparison */}
       <Card>
         <CardContent>

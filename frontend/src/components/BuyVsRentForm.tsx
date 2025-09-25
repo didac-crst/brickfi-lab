@@ -176,6 +176,40 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
       </Grid>
 
+      {/* Calculated Loan Term Display */}
+      {inputs.amortization_rate > 0 && inputs.annual_rate > 0 && (
+        <Box sx={{ mb: 2, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Calculated Loan Term:
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
+            {(() => {
+              // Calculate loan term that would result in the desired amortization rate
+              const monthlyRate = inputs.annual_rate / 12;
+              const mortgageAmount = inputs.price - inputs.down_payment;
+              
+              // Find the loan term that gives us the desired amortization rate
+              for (let years = 1; years <= 40; years++) {
+                const monthlyPayment = mortgageAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -12 * years));
+                const firstMonthInterest = mortgageAmount * monthlyRate;
+                const firstMonthPrincipal = monthlyPayment - firstMonthInterest;
+                const calculatedAmortizationRate = firstMonthPrincipal / monthlyPayment;
+                
+                if (Math.abs(calculatedAmortizationRate - inputs.amortization_rate) < 0.001) {
+                  return `${years} years`;
+                }
+              }
+              
+              // Fallback calculation
+              return "Calculating...";
+            })()}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Based on {(inputs.amortization_rate * 100).toFixed(2)}% monthly amortization rate
+          </Typography>
+        </Box>
+      )}
+
       <Divider sx={{ my: 2 }} />
 
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>

@@ -19,6 +19,8 @@ export interface BuyVsRentSummary {
   break_even_years: number | null;
   monthly_rent_total: number;
   owner_vs_rent_monthly: number;
+  calculated_loan_term_years: number;
+  monthly_amortization_rate: number;
 }
 
 export interface SensitivityResult {
