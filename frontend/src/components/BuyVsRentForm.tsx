@@ -46,6 +46,8 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
     const newInputs = { ...inputs, [field]: value };
     setInputs(newInputs);
     setError(null);
+    // Trigger analysis update with debounce
+    onInputsChange(newInputs);
   };
 
   const handleSubmit = () => {

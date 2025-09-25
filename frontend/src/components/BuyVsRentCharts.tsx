@@ -242,7 +242,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Break-even Analysis
-              </Typography>
+        </Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={costComparisonData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -276,7 +276,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                   />
                 </LineChart>
               </ResponsiveContainer>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {analysis.break_even_years 
                   ? `Break-even occurs after ${analysis.break_even_years} years (including down payment)`
                   : 'No break-even point within 30 years (including down payment)'
@@ -393,7 +393,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                     formatter={(value: any, name: any) => [
                       `€${Number(value).toLocaleString()}`, 
                       name === 'house_wealth' ? 'House Wealth' : 
-                      name === 'investment_wealth' ? 'Total Investment Wealth' : 
+                      name === 'rent_plus_invest_wealth' ? 'Rent+Invest Wealth (depends on mortgage)' : 
                       name === 'pure_investment_value' ? 'Pure Investment (Down Payment + Returns)' :
                       name === 'wealth_difference' ? 'Wealth Difference' : name
                     ]}
@@ -410,10 +410,10 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="investment_wealth" 
+                    dataKey="rent_plus_invest_wealth" 
                     stroke="#2e7d32" 
                     strokeWidth={3}
-                    name="Total Investment Wealth"
+                    name="Rent+Invest Wealth (depends on mortgage)"
                     dot={{ r: 4 }}
                   />
                   <Line 
@@ -472,8 +472,8 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                   <Box textAlign="center">
                     <Typography variant="h4" color={analysis.annual_saving_vs_rent > 0 ? "success.main" : "error.main"}>
                       €{analysis.annual_saving_vs_rent.toLocaleString()}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
                       Annual Savings vs Rent
                     </Typography>
                   </Box>
@@ -482,10 +482,10 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                   <Box textAlign="center">
                     <Typography variant="h4" color="text.primary">
                       {analysis.break_even_years || 'N/A'}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
                       Break-even Years
-                    </Typography>
+        </Typography>
                   </Box>
                 </Grid>
               </Grid>

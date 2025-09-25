@@ -291,10 +291,10 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
             <Grid item xs={12} sm={6}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Typography variant="body1">
-                  <strong>Monthly Amortization Rate:</strong>
+                  <strong>Yearly Amortization Rate:</strong>
                 </Typography>
                 <Chip
-                  label={`${(analysis.monthly_amortization_rate * 100).toFixed(2)}%`}
+                  label={`${(analysis.yearly_amortization_rate * 100).toFixed(2)}%`}
                   color="secondary"
                   variant="outlined"
                 />
@@ -303,7 +303,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
           </Grid>
           
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Based on your amortization rate of {(analysis.monthly_amortization_rate * 100).toFixed(2)}% per month, 
+            Based on your amortization rate of {(analysis.yearly_amortization_rate * 100).toFixed(2)}% per year, 
             the loan will be paid off in approximately {formatNumber(analysis.calculated_loan_term_years, 1)} years.
           </Typography>
         </CardContent>

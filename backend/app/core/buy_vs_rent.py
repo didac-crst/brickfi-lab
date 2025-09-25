@@ -135,7 +135,7 @@ class BuyVsRentAnalyzer:
             monthly_rent_total=monthly_rent_total,
             owner_vs_rent_monthly=monthly_rent_total - owner_cost_month1,
             calculated_loan_term_years=self.term_years,
-            monthly_amortization_rate=self.i.amortization_rate,
+            yearly_amortization_rate=self.i.amortization_rate,
             # Wealth comparison metrics
             house_wealth_10_years=house_wealth_10,
             investment_wealth_10_years=investment_wealth_10,
@@ -324,7 +324,8 @@ class BuyVsRentAnalyzer:
             results.append({
                 "year": year,
                 "house_wealth": house_wealth,
-                "investment_wealth": investment_wealth,
+                "investment_wealth": investment_wealth,  # DEPRECATED NAME
+                "rent_plus_invest_wealth": investment_wealth,  # clearer alias
                 "wealth_difference": wealth_difference,
                 "house_value": house_value,
                 "remaining_mortgage": remaining_balance,

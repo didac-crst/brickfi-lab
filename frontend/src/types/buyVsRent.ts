@@ -25,7 +25,7 @@ export interface BuyVsRentSummary {
   monthly_rent_total: number;
   owner_vs_rent_monthly: number;
   calculated_loan_term_years: number;
-  monthly_amortization_rate: number;
+  yearly_amortization_rate: number;
   // Wealth comparison metrics
   house_wealth_10_years: number;
   investment_wealth_10_years: number;
