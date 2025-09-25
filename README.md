@@ -1,30 +1,46 @@
 # Housing Strategy Dashboard
 
-An interactive web application for analyzing housing investment decisions and mortgage refinancing strategies. This dashboard provides visual tools to compare buy vs rent scenarios and optimize forward rate decisions for mortgage refinancing.
+An interactive web application for comprehensive housing investment analysis and mortgage refinancing strategies. This dashboard provides advanced visual tools to compare buy vs rent scenarios, analyze wealth accumulation over time, and optimize forward rate decisions for mortgage refinancing.
 
 ## Features
 
 ### 🏠 Buy vs Rent Analyzer
-- **Interactive Input Forms**: Modify property price, mortgage rates, rent costs, and other parameters in real-time
-- **Visual Charts**: See break-even analysis, cost comparisons, and sensitivity analysis with interactive charts
-- **Economic Analysis**: Compare first-year ownership costs vs rental costs with detailed breakdowns
+- **Advanced Input Forms**: Configure property details, mortgage terms, rental costs, and investment parameters
+- **Amortization Rate Calculator**: Input yearly amortization rate (e.g., 5%) and automatically calculate loan term
+- **Comprehensive Analysis**: Property price, acquisition costs, mortgage breakdown, and total interest calculations
+- **Wealth Comparison**: Compare house wealth vs investment wealth over 30 years with appreciation and investment returns
+- **Interactive Charts**: 
+  - Cost comparison over time with loan payoff consideration
+  - Mortgage breakdown showing interest vs principal payments
+  - Wealth comparison with house appreciation and investment growth
+  - Break-even analysis with realistic post-loan scenarios
 
 ### 📈 Forward Rate Tracker
 - **Rate Decision Dashboard**: Visualize forward-loaded mortgage rates and decision triggers
 - **Premium Schedule Modeling**: Interactive charts showing how forward premiums affect rates over time
 - **Small-Loan Analysis**: Model surcharges and optimize loan amounts for better rates
+- **Decision Diagnostics**: Visual analysis of decision factors and recommendations
+
+### 💰 Wealth Analysis
+- **House Appreciation**: Model property value growth over time (default: 2% annually)
+- **Investment Returns**: Compare down payment investment in ETFs/funds (default: 7% annually)
+- **Wealth Crossover Analysis**: Identify when investment strategy overtakes house ownership
+- **30-Year Projections**: Complete wealth comparison with key milestones at 10, 20, and 30 years
 
 ### 📊 Interactive Visualizations
 - **Real-time Updates**: All charts and calculations update instantly as you modify inputs
 - **Sensitivity Analysis**: Visualize how changes in rates, rents, or other factors affect outcomes
-- **Comparison Tools**: Side-by-side analysis of different scenarios
+- **Multi-line Charts**: Compare house wealth, investment wealth, and wealth differences over time
+- **Comprehensive Summary**: Key metrics, break-even points, and wealth milestones
 
 ## Tech Stack
 
-- **Backend**: FastAPI (Python) with the core housing strategy logic
-- **Frontend**: React with TypeScript, Material-UI, and Chart.js
-- **Charts**: Interactive visualizations with Recharts
+- **Backend**: FastAPI (Python) with comprehensive housing strategy logic
+- **Frontend**: React with TypeScript, Material-UI components
+- **Charts**: Interactive visualizations with Recharts library
+- **Configuration**: Centralized JSON configuration for default values
 - **Deployment**: Docker containers with docker-compose
+- **API**: RESTful API with automatic OpenAPI documentation
 
 ## Quick Start
 
@@ -122,10 +138,24 @@ Run `make help` to see all available commands with descriptions.
 
 ### Buy vs Rent Analysis
 1. Navigate to the "Buy vs Rent" tab
-2. Enter property details (price, down payment, mortgage rate, etc.)
-3. Enter rental market data (monthly rent, comparable costs)
-4. View real-time analysis with interactive charts
-5. Use sensitivity sliders to explore different scenarios
+2. **Configure Property Details**:
+   - Property price (default: €500,000)
+   - Down payment (default: €100,000)
+   - Purchase fees (default: 10%)
+   - Interest rate (default: 3%)
+   - Amortization rate (default: 5% yearly)
+3. **Set Investment Parameters**:
+   - House appreciation rate (default: 2% annually)
+   - Investment return rate (default: 7% annually)
+4. **Enter Rental Market Data**:
+   - Monthly rent (default: €2,000)
+   - Property taxes, insurance, maintenance costs
+5. **View Comprehensive Analysis**:
+   - Property acquisition costs and mortgage breakdown
+   - Monthly cost comparisons (credit repayment vs owner cost)
+   - Wealth comparison over 30 years
+   - Break-even analysis with loan payoff consideration
+   - Interactive charts showing wealth accumulation patterns
 
 ### Forward Rate Decision
 1. Navigate to the "Forward Rate" tab
@@ -133,6 +163,12 @@ Run `make help` to see all available commands with descriptions.
 3. Set your risk tolerance and trigger points
 4. View the decision recommendation with supporting charts
 5. Explore different lead times and premium schedules
+
+### Key Insights
+- **Wealth Crossover Point**: Identifies when investment strategy overtakes house ownership
+- **Break-even Analysis**: Accounts for loan payoff and reduced monthly costs
+- **Interest Rate Impact**: Shows how mortgage rates affect both house and investment wealth
+- **30-Year Projections**: Complete wealth comparison with key milestones
 
 ## API Documentation
 
@@ -145,19 +181,55 @@ housing-strategy-dashboard/
 ├── backend/                 # FastAPI backend
 │   ├── app/
 │   │   ├── main.py         # FastAPI application
-│   │   ├── models/         # Pydantic models
-│   │   └── api/            # API routes
+│   │   ├── models/         # Pydantic models for API
+│   │   ├── core/           # Core business logic
+│   │   └── api/            # API routes and endpoints
 │   └── requirements.txt    # Python dependencies
 ├── frontend/               # React frontend
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/          # Page components
-│   │   ├── charts/         # Chart components
-│   │   └── utils/          # Utility functions
+│   │   ├── components/     # React components (forms, charts, summaries)
+│   │   ├── pages/          # Page components (BuyVsRent, ForwardTracker)
+│   │   ├── hooks/          # Custom React hooks for API integration
+│   │   ├── types/          # TypeScript type definitions
+│   │   └── utils/          # Utility functions and API client
 │   └── package.json        # Node.js dependencies
+├── shared/                 # Shared configuration
+│   └── config/
+│       └── defaults.json   # Centralized default values
 ├── docker/                 # Docker configuration
+├── scripts/                # Build and deployment scripts
 └── docs/                   # Additional documentation
 ```
+
+### Key Components
+
+- **Backend Core Logic**: Advanced financial calculations for buy vs rent analysis, wealth comparison, and mortgage optimization
+- **Frontend Components**: Interactive forms, real-time charts, and comprehensive summary displays
+- **Shared Configuration**: Centralized default values used by both backend and frontend
+- **API Integration**: RESTful API with automatic documentation and type-safe frontend integration
+
+## Recent Improvements
+
+### 🚀 Major Features Added
+- **Wealth Comparison Analysis**: Complete 30-year wealth projection comparing house ownership vs investment strategy
+- **House Appreciation Modeling**: Property value growth over time with configurable appreciation rates
+- **Investment Return Analysis**: Down payment investment simulation with ETF/fund returns
+- **Amortization Rate Calculator**: Input yearly amortization rate instead of fixed loan terms
+- **Advanced Break-even Analysis**: Accounts for loan payoff and reduced monthly costs post-mortgage
+
+### 🔧 Technical Enhancements
+- **Centralized Configuration**: Single JSON file for all default values across backend and frontend
+- **Enhanced API Endpoints**: New endpoints for wealth comparison, house value, and investment projections
+- **Improved Chart Visualizations**: Multi-line charts with wealth comparison, mortgage breakdown, and cost analysis
+- **Real-time Calculations**: Instant updates as you modify input parameters
+- **Comprehensive Summary**: Key metrics, wealth milestones, and crossover point analysis
+
+### 📊 Analysis Capabilities
+- **Interest Rate Impact**: Shows how mortgage rates affect both house and investment wealth
+- **Wealth Crossover Detection**: Identifies when investment strategy overtakes house ownership
+- **30-Year Projections**: Complete wealth comparison with milestones at 10, 20, and 30 years
+- **Pure Investment Tracking**: Separates investment returns from mortgage-dependent savings
+- **Realistic Cost Modeling**: Accounts for loan payoff and reduced monthly costs
 
 ## Contributing
 
