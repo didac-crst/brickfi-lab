@@ -149,7 +149,7 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
       rate: item.rate,
       rent: item.rent,
       annualSaving: item.annual_saving,
-      breakEvenYears: item.break_even_years || 0,
+      cashPaybackYears: item.cash_payback_years || 0,
       ownerCost: item.owner_cost_m1
     }));
   };
@@ -293,9 +293,9 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                 </LineChart>
               </ResponsiveContainer>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {analysis.break_even_years 
-                  ? `Break-even occurs after ${analysis.break_even_years} years (including down payment)`
-                  : 'No break-even point within 30 years (including down payment)'
+                {analysis.cash_payback_years 
+                  ? `Cash payback occurs after ${analysis.cash_payback_years} years (including down payment)`
+                  : 'No cash payback within 30 years (including down payment)'
                 }
               </Typography>
             </CardContent>
@@ -566,10 +566,10 @@ const BuyVsRentCharts: React.FC<BuyVsRentChartsProps> = ({ analysis, inputs, sen
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">
                     <Typography variant="h4" color="text.primary">
-                      {analysis.break_even_years || 'N/A'}
+                      {analysis.cash_payback_years || 'N/A'}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-                      Break-even Years
+                      Cash Payback Years
         </Typography>
                   </Box>
                 </Grid>

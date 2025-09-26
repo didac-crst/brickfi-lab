@@ -116,8 +116,10 @@ export interface BuyVsRentSummary {
   owner_cost_month1: number;
   /** Annual savings compared to renting (negative = renting cheaper) */
   annual_saving_vs_rent: number;
-  /** Years until ownership becomes advantageous */
-  break_even_years: number | null;
+  /** Years until cumulative cash savings recover upfront costs */
+  cash_payback_years: number | null;
+  /** Year when net advantage becomes positive */
+  wealth_breakeven_year: number | null;
   /** Total monthly rental cost including insurance */
   monthly_rent_total: number;
   /** Monthly cost difference (positive = ownership costs more) */
@@ -169,8 +171,8 @@ export interface SensitivityResult {
   owner_cost_m1: number;
   /** Annual savings vs renting (negative = renting cheaper) */
   annual_saving: number;
-  /** Years until ownership becomes advantageous */
-  break_even_years: number | null;
+  /** Years until cumulative cash savings recover upfront costs */
+  cash_payback_years: number | null;
 }
 
 /**

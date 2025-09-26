@@ -31,7 +31,8 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs })
   };
 
   const isOwningBetter = analysis.annual_saving_vs_rent > 0;
-  const breakEvenExists = analysis.break_even_years !== null;
+  const cashPaybackExists = analysis.cash_payback_years !== null;
+  const wealthBreakevenExists = analysis.wealth_breakeven_year !== null;
 
   const summaryCards = [
     // First row - Property and financing
@@ -274,10 +275,10 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs })
               <Typography variant="body1">
                 <strong>Cash Payback:</strong>
               </Typography>
-              {breakEvenExists ? (
+              {cashPaybackExists ? (
                 <>
                   <Chip
-                    label={`${formatNumber(analysis.break_even_years!)} years`}
+                    label={`${formatNumber(analysis.cash_payback_years!)} years`}
                     color="info"
                     variant="outlined"
                   />
@@ -299,14 +300,24 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs })
               <Typography variant="body1">
                 <strong>Wealth Breakeven:</strong>
               </Typography>
-              <Chip
-                label="~2 years"
-                color="success"
-                variant="outlined"
-              />
-              <Typography variant="body2" color="text.secondary">
-                When net advantage becomes positive
-              </Typography>
+              {wealthBreakevenExists ? (
+                <>
+                  <Chip
+                    label={`Year ${analysis.wealth_breakeven_year}`}
+                    color="success"
+                    variant="outlined"
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    When net advantage becomes positive
+                  </Typography>
+                </>
+              ) : (
+                <Chip
+                  label="Never"
+                  color="error"
+                  variant="outlined"
+                />
+              )}
             </Box>
           </Box>
         </CardContent>

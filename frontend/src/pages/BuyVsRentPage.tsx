@@ -133,8 +133,10 @@ const BuyVsRentPage: React.FC = () => {
         financial_metrics: {
           annual_saving_vs_rent: analysis.annual_saving_vs_rent,
           annual_saving_description: "Annual savings compared to renting (negative means renting is cheaper)",
-          break_even_years: analysis.break_even_years,
-          break_even_description: "Years until ownership becomes financially advantageous (considering equity building)"
+          cash_payback_years: analysis.cash_payback_years,
+          cash_payback_description: "Years until cumulative cash savings recover upfront costs (DP + fees)",
+          wealth_breakeven_year: analysis.wealth_breakeven_year,
+          wealth_breakeven_description: "Year when net advantage becomes positive"
         },
         wealth_comparison_metrics: {
           house_wealth_10_years: analysis.house_wealth_10_years,
@@ -174,8 +176,8 @@ const BuyVsRentPage: React.FC = () => {
           owner_cost_description: "Monthly ownership cost (excluding principal) in first month",
           annual_saving: result.annual_saving,
           annual_saving_description: "Annual savings vs renting (negative means renting is cheaper)",
-          break_even_years: result.break_even_years,
-          break_even_description: "Years until ownership becomes advantageous",
+          cash_payback_years: result.cash_payback_years,
+          cash_payback_description: "Years until cumulative cash savings recover upfront costs",
           scenario_description: `Scenario with ${(result.rate * 100).toFixed(2)}% interest rate and €${result.rent}/month rent`
         }))
       } : null,
