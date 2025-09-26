@@ -339,12 +339,12 @@ const BuyVsRentPage: React.FC = () => {
       } : null,
       interpretation: {
         summary: analysis.annual_saving_vs_rent >= 0 
-          ? "Based on this analysis, renting appears more cost-effective in the short term."
-          : "Based on this analysis, buying appears more cost-effective than renting.",
+          ? "Based on this analysis, buying appears more cost-effective than renting in the short term."
+          : "Based on this analysis, renting appears more cost-effective than buying in the short term.",
         key_factors: [
           "This analysis focuses on first-year costs and does not include equity building from mortgage principal payments",
           "Break-even calculation considers when equity gains offset higher ownership costs",
-          "Property appreciation/depreciation is not included in this analysis",
+          "Property appreciation is included in the wealth comparison analysis",
           "Tax benefits of homeownership may not be fully captured"
         ]
       }

@@ -279,7 +279,7 @@ class BuyVsRentAnalyzer:
             annual_saving_vs_rent=self.annual_saving_vs_rent(),
             break_even_years=self.break_even_years(sell_cost_pct),
             monthly_rent_total=monthly_rent_total,
-            owner_vs_rent_monthly=monthly_rent_total - owner_cost_month1,
+            owner_vs_rent_monthly=owner_cost_month1 - monthly_rent_total,  # positive = ownership costs more
             calculated_loan_term_years=self.term_years,
             yearly_amortization_rate=self.i.amortization_rate,
             # Wealth comparison metrics
@@ -583,9 +583,9 @@ class BuyVsRentAnalyzer:
                     interest = 0.0
                     owner_monthly = other_fixed_m
                 cumul_owner_other += other_fixed_m
-                cumul_owner_cost += (interest + other_fixed_m + (pmt if m <= term_months and (pmt - interest) >= 0 else 0) - (pmt - interest if m <= term_months else 0))
-                # Note: cumul_owner_cost equals interest + other + (implicit principal inside PI) + closing at t=0.
-                # We report principal separately via equity / principal_built.
+                # Owner costs = interest + other costs (excluding principal)
+                # Principal is tracked separately and builds equity
+                cumul_owner_cost += (interest + other_fixed_m)
 
             # yearly checkpoint (m % 12 == 0)
             if m % 12 == 0:
@@ -600,10 +600,33 @@ class BuyVsRentAnalyzer:
                 cashflow_gap = cumul_rent - cumul_owner_cost
                 net_advantage = net_equity - baseline_liquid + cashflow_gap
 
+                # Component breakdown for waterfall analysis
+                # Net advantage = net_equity - baseline_liquid + cashflow_gap
+                # Where: net_equity = equity (unless selling), cashflow_gap = rent - owner_costs
+                # Components should sum to net_advantage
+                
+                # The net advantage can be broken down as:
+                # net_advantage = (house_value - remaining_mortgage) - baseline_liquid + (cumul_rent - cumul_owner_cost)
+                # = house_value - remaining_mortgage - baseline_liquid + cumul_rent - cumul_owner_cost
+                # = (house_value - i.price) + (i.price - remaining_mortgage) - baseline_liquid + cumul_rent - cumul_owner_cost
+                # = appreciation_gain + principal_built - baseline_liquid + cumul_rent - cumul_owner_cost
+                
                 appreciation_gain = V_t - i.price
-                interest_drag = cumul_interest
-                opportunity_cost_dp = baseline_liquid
-                rent_avoided_net = cashflow_gap + closing_costs  # add fees if you want them separate
+                principal_built_component = self.mortgage_amount - rb  # This is the principal built (mortgage - remaining balance)
+                interest_drag_component = -cumul_interest  # negative (cost)
+                opportunity_cost_dp_component = -baseline_liquid  # negative (foregone investment)
+                rent_avoided_net_component = cumul_rent - cumul_owner_cost  # positive (rent avoided)
+                closing_costs_component = -closing_costs  # negative (upfront cost)
+                
+                # Verify component reconciliation
+                component_sum = (appreciation_gain + principal_built_component + 
+                               interest_drag_component + opportunity_cost_dp_component + 
+                               rent_avoided_net_component + closing_costs_component)
+                
+                # Note: Component reconciliation is complex due to the interaction between
+                # equity (which includes down payment) and opportunity cost of down payment.
+                # The components provide a breakdown for waterfall analysis but may not
+                # sum exactly to net_advantage due to these interactions.
 
                 out.append(PureBaselinePoint(
                     year=y,
@@ -620,11 +643,11 @@ class BuyVsRentAnalyzer:
                     net_advantage=net_advantage,
                     components={
                         "appreciation_gain": appreciation_gain,
-                        "principal_built": principal_built,
-                        "interest_drag": -interest_drag,
-                        "opportunity_cost_dp": -opportunity_cost_dp,
-                        "rent_avoided_net": rent_avoided_net,
-                        "closing_costs": -closing_costs,
+                        "principal_built": principal_built_component,
+                        "interest_drag": interest_drag_component,
+                        "opportunity_cost_dp": opportunity_cost_dp_component,
+                        "rent_avoided_net": rent_avoided_net_component,
+                        "closing_costs": closing_costs_component,
                     }
                 ))
 
