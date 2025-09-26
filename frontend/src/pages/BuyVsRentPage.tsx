@@ -62,6 +62,7 @@ const BuyVsRentPage: React.FC = () => {
       analysis_type: "Buy vs Rent Property Analysis",
       description: "Complete analysis comparing the costs of buying versus renting a property, including comprehensive data from all API endpoints with detailed explanations.",
       timestamp: new Date().toISOString(),
+      accounting_identity_formula: "Net Advantage = Owner Equity - Baseline Wealth + Cashflow Gap - Closing Costs",
       inputs: {
         description: "User input parameters for the property analysis",
         property_details: {
@@ -139,15 +140,15 @@ const BuyVsRentPage: React.FC = () => {
           house_wealth_10_years: analysis.house_wealth_10_years,
           house_wealth_10_description: "Total house wealth (value - remaining mortgage) after 10 years",
           investment_wealth_10_years: analysis.investment_wealth_10_years,
-          investment_wealth_10_description: "Total investment wealth (rent+invest strategy) after 10 years",
+          investment_wealth_10_description: inputs.baseline_mode === 'pure_renter' ? "Pure renter wealth (down payment compounded independently) after 10 years" : "Total investment wealth (rent+invest strategy) after 10 years",
           house_wealth_20_years: analysis.house_wealth_20_years,
           house_wealth_20_description: "Total house wealth (value - remaining mortgage) after 20 years",
           investment_wealth_20_years: analysis.investment_wealth_20_years,
-          investment_wealth_20_description: "Total investment wealth (rent+invest strategy) after 20 years",
+          investment_wealth_20_description: inputs.baseline_mode === 'pure_renter' ? "Pure renter wealth (down payment compounded independently) after 20 years" : "Total investment wealth (rent+invest strategy) after 20 years",
           house_wealth_30_years: analysis.house_wealth_30_years,
           house_wealth_30_description: "Total house wealth (value - remaining mortgage) after 30 years",
           investment_wealth_30_years: analysis.investment_wealth_30_years,
-          investment_wealth_30_description: "Total investment wealth (rent+invest strategy) after 30 years",
+          investment_wealth_30_description: inputs.baseline_mode === 'pure_renter' ? "Pure renter wealth (down payment compounded independently) after 30 years" : "Total investment wealth (rent+invest strategy) after 30 years",
           wealth_crossover_year: analysis.wealth_crossover_year,
           wealth_crossover_description: "Year when investment strategy overtakes house wealth (null if never)"
         },

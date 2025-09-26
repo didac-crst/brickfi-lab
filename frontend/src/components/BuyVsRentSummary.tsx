@@ -373,7 +373,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs })
             
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                Monthly Difference (Rent - Owner)
+                Monthly Difference (Owner - Rent)
               </Typography>
               <Chip
                 icon={analysis.owner_vs_rent_monthly > 0 ? <TrendingUp /> : <TrendingDown />}
