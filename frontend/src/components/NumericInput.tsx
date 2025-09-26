@@ -39,7 +39,9 @@ export function NumericInput({
   const finalDp = dp ?? defaultDp;
 
   // For percent inputs, we need to convert between fraction (internal) and percentage (display)
-  const displayValue = kind === "percent" ? local * 100 : local;
+  const displayValue = kind === "percent" ? 
+    new Decimal(local).times(100).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber() : 
+    local;
   const handleChange = (newDisplayValue: number) => {
     const newValue = kind === "percent" ? newDisplayValue / 100 : newDisplayValue;
     setLocal(newValue);
