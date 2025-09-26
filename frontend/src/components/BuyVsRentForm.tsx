@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  TextField,
   Button,
   Typography,
   Grid,
@@ -14,12 +13,14 @@ import {
   FormHelperText,
   FormControlLabel,
   Switch,
+  SelectChangeEvent,
 } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
 import { getDefaultBuyVsRentInputs, getDefaultBuyVsRentInputsSync } from '../utils/config';
 import { NumericInput, PercentInput } from './NumericInput';
+import { getFieldStepSync } from '../utils/inputConfig';
 
 interface BuyVsRentFormProps {
   onInputsChange: (inputs: BuyVsRentInputs) => void;
@@ -100,44 +101,35 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12}>
-          <TextField
+          <NumericInput
             fullWidth
             label="Property Price"
-            type="number"
+            kind="currency"
             value={inputs.price}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('price', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
-            helperText={formatCurrency(inputs.price)}
+            onChange={(value) => handleInputChange('price', value)}
+            step={getFieldStepSync('property_price')}
           />
         </Grid>
         
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
             label="Down Payment"
-            type="number"
+            kind="currency"
             value={inputs.down_payment}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('down_payment', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
-            helperText={formatCurrency(inputs.down_payment)}
+            onChange={(value) => handleInputChange('down_payment', value)}
+            step={getFieldStepSync('down_payment')}
           />
         </Grid>
         
         <Grid item xs={6}>
-          <TextField
+          <PercentInput
             fullWidth
             label="Purchase Fees"
-            type="number"
-            value={inputs.fees_pct * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('fees_pct', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText={`${(inputs.fees_pct * 100).toFixed(2)}%`}
+            value={inputs.fees_pct}
+            onChange={(value) => handleInputChange('fees_pct', value)}
+            dp={2}
+            step={getFieldStepSync('fees_pct')}
           />
         </Grid>
       </Grid>
@@ -150,16 +142,14 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6}>
-          <TextField
+          <PercentInput
             fullWidth
             label="Interest Rate"
-            type="number"
-            value={inputs.annual_rate * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('annual_rate', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText={`${(inputs.annual_rate * 100).toFixed(2)}%`}
+            value={inputs.annual_rate}
+            onChange={(value) => handleInputChange('annual_rate', value)}
+            dp={2}
+            step={getFieldStepSync('annual_rate')}
+            helperText="per year"
           />
         </Grid>
         
@@ -170,6 +160,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             value={inputs.amortization_rate}
             onChange={(value) => handleInputChange('amortization_rate', value)}
             dp={2}
+            step={getFieldStepSync('amortization_rate')}
             helperText="per year"
           />
         </Grid>
@@ -207,38 +198,38 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
-            label="Property Tax (Monthly)"
-            type="number"
+            label="Property Tax"
+            kind="currency"
             value={inputs.taxe_fonciere_monthly}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('taxe_fonciere_monthly', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
+            onChange={(value) => handleInputChange('taxe_fonciere_monthly', value)}
+            step={getFieldStepSync('taxe_fonciere_monthly')}
+            helperText="per month"
           />
         </Grid>
         
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
-            label="Insurance (Monthly)"
-            type="number"
+            label="Insurance"
+            kind="currency"
             value={inputs.insurance_monthly}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('insurance_monthly', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
+            onChange={(value) => handleInputChange('insurance_monthly', value)}
+            step={getFieldStepSync('insurance_monthly')}
+            helperText="per month"
           />
         </Grid>
         
         <Grid item xs={12}>
           <PercentInput
             fullWidth
-            label="Maintenance (Annual %)"
+            label="Maintenance"
             value={inputs.maintenance_pct_annual}
             onChange={(value) => handleInputChange('maintenance_pct_annual', value)}
             dp={2}
+            step={getFieldStepSync('maintenance_pct_annual')}
+            helperText="per year"
           />
         </Grid>
       </Grid>
@@ -251,28 +242,26 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
-            label="Monthly Rent"
-            type="number"
+            label="Rent"
+            kind="currency"
             value={inputs.monthly_rent}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('monthly_rent', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
+            onChange={(value) => handleInputChange('monthly_rent', value)}
+            step={getFieldStepSync('monthly_rent')}
+            helperText="per month"
           />
         </Grid>
         
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
             label="Renter Insurance"
-            type="number"
+            kind="currency"
             value={inputs.renter_insurance_monthly}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('renter_insurance_monthly', parseFloat(e.target.value) || 0)}
-            InputProps={{
-              startAdornment: '€',
-            }}
+            onChange={(value) => handleInputChange('renter_insurance_monthly', value)}
+            step={getFieldStepSync('renter_insurance_monthly')}
+            helperText="per month"
           />
         </Grid>
       </Grid>
@@ -291,7 +280,8 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 value={inputs.house_appreciation_rate}
                 onChange={(value) => handleInputChange('house_appreciation_rate', value)}
                 dp={2}
-                helperText="Annual house value appreciation (e.g., 2% per year)"
+                step={getFieldStepSync('house_appreciation_rate')}
+                helperText="per year"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -301,7 +291,8 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 value={inputs.investment_return_rate}
                 onChange={(value) => handleInputChange('investment_return_rate', value)}
                 dp={2}
-                helperText="Annual return if down payment was invested (e.g., 7% per year)"
+                step={getFieldStepSync('investment_return_rate')}
+                helperText="Annual return if down payment was invested"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -311,7 +302,8 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 value={inputs.rent_inflation_rate}
                 onChange={(value) => handleInputChange('rent_inflation_rate', value)}
                 dp={2}
-                helperText="Annual rent inflation rate (e.g., 2% per year)"
+                step={getFieldStepSync('rent_inflation_rate')}
+                helperText="per year"
               />
             </Grid>
           </Grid>
@@ -328,7 +320,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 <InputLabel>Baseline Comparison Mode</InputLabel>
                 <Select
                   value={inputs.baseline_mode}
-                  onChange={(e) => handleInputChange('baseline_mode', e.target.value as 'pure_renter' | 'budget_matched')}
+                  onChange={(e: SelectChangeEvent<'pure_renter' | 'budget_matched'>) => handleInputChange('baseline_mode', e.target.value as 'pure_renter' | 'budget_matched')}
                   label="Baseline Comparison Mode"
                 >
                   <MenuItem value="pure_renter">Pure Renter (DP compounded)</MenuItem>
@@ -344,7 +336,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 control={
                   <Switch
                     checked={inputs.sell_on_horizon}
-                    onChange={(e) => handleInputChange('sell_on_horizon', e.target.checked)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('sell_on_horizon', e.target.checked)}
                   />
                 }
                 label="Sell on Horizon"

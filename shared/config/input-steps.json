@@ -1,0 +1,59 @@
+{
+  "description": "Configuration for input field spinner steps and precision",
+  "locale": "en-US",
+  "locale_description": "Locale for number formatting (en-US: 500,000, de-DE: 500.000, fr-FR: 500 000)",
+  "fields": {
+    "property_price": {
+      "step": 10000,
+      "description": "Property price in euros - large increments for major purchases"
+    },
+    "down_payment": {
+      "step": 10000,
+      "description": "Down payment in euros - large increments for major payments"
+    },
+    "monthly_rent": {
+      "step": 10,
+      "description": "Monthly rent in euros - moderate increments for rent adjustments"
+    },
+    "taxe_fonciere_monthly": {
+      "step": 10,
+      "description": "Monthly property tax in euros - moderate increments"
+    },
+    "insurance_monthly": {
+      "step": 10,
+      "description": "Monthly insurance in euros - moderate increments"
+    },
+    "renter_insurance_monthly": {
+      "step": 10,
+      "description": "Monthly renter insurance in euros - moderate increments"
+    },
+    "fees_pct": {
+      "step": 0.1,
+      "description": "Purchase fees percentage - small increments for precise fees"
+    },
+    "annual_rate": {
+      "step": 0.01,
+      "description": "Interest rate percentage - precise increments for rates"
+    },
+    "amortization_rate": {
+      "step": 0.01,
+      "description": "Amortization rate percentage - precise increments for rates"
+    },
+    "maintenance_pct_annual": {
+      "step": 0.1,
+      "description": "Maintenance percentage - moderate increments for maintenance costs"
+    },
+    "house_appreciation_rate": {
+      "step": 0.01,
+      "description": "House appreciation rate percentage - precise increments for market rates"
+    },
+    "investment_return_rate": {
+      "step": 0.01,
+      "description": "Investment return rate percentage - precise increments for market rates"
+    },
+    "rent_inflation_rate": {
+      "step": 0.01,
+      "description": "Rent inflation rate percentage - precise increments for inflation rates"
+    }
+  }
+}

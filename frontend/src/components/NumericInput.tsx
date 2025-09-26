@@ -26,6 +26,7 @@ interface PercentInputProps {
   maxPercent?: number; // in % units, e.g. 100
   fullWidth?: boolean;
   helperText?: string;
+  step?: number; // custom step for spinner (in percentage units)
 }
 
 export function PercentInput({
@@ -37,6 +38,7 @@ export function PercentInput({
   maxPercent,
   fullWidth,
   helperText,
+  step,
 }: PercentInputProps) {
   const factor = dp === 2 ? 100 : 10;           // 2dp => ×100, 1dp => ×10
   const scale = dp === 2 ? 10000 : 1000;        // fraction scale (bps or 0.1%)
@@ -75,22 +77,22 @@ export function PercentInput({
       }}
       onFocus={() => { focused.current = true; }}
       onBlur={() => { focused.current = false; commit(parseFloat(displayPercent)); }}
-      onChange={(e) => {
-        // parse user's number; if NaN, don't commit yet—just update display by state
-        const n = Number(e.target.value);
-        if (Number.isFinite(n)) {
-          // update bps live so the field reflects exactly what user typed
-          const nextBps = Math.round(n * factor);
-          setBps(nextBps);
-        }
-      }}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            // parse user's number; if NaN, don't commit yet—just update display by state
+            const n = Number(e.target.value);
+            if (Number.isFinite(n)) {
+              // update bps live so the field reflects exactly what user typed
+              const nextBps = Math.round(n * factor);
+              setBps(nextBps);
+            }
+          }}
       inputProps={{
-        step: dp === 2 ? 0.01 : 0.1,     // spinner precision
+        step: step ?? (dp === 2 ? 0.01 : 0.1),     // use custom step or default spinner precision
         inputMode: "decimal",
         min: minPercent,
         max: maxPercent,
       }}
-      onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
       sx={{
         '& input': {
           fontFeatureSettings: "'tnum' 1", // monospaced digits for alignment
@@ -119,22 +121,10 @@ export function NumericInput({
   }, [value]);
 
   // Determine default step and dp based on kind
-  const defaultStep = kind === "percent" ? 0.01 : (kind === "currency" ? 0.01 : 1);
-  const defaultDp = kind === "percent" ? 2 : (kind === "currency" ? 2 : 0);
+  const defaultStep = kind === "currency" ? 0.01 : 1;
+  const defaultDp = kind === "currency" ? 2 : 0;
   const finalStep = step ?? defaultStep;
   const finalDp = dp ?? defaultDp;
-
-  // For percent inputs, we need to convert between fraction (internal) and percentage (display)
-  // Don't round the display value - preserve full precision for user input
-  const displayValue = kind === "percent" ? 
-    new Decimal(local || 0).times(100).toNumber() : 
-    (local || 0);
-  const handleChange = (newDisplayValue: number) => {
-    const newValue = kind === "percent" ? 
-      new Decimal(newDisplayValue).div(100).toNumber() : 
-      newDisplayValue;
-    setLocal(newValue);
-  };
 
   function getInputProps() {
     switch (kind) {
@@ -162,15 +152,17 @@ export function NumericInput({
   return (
     <TextField
       {...textFieldProps}
-      type="number"
+      type="number" // Keep as number to preserve spinners
       inputMode="decimal"
-      value={Number.isFinite(displayValue) ? displayValue : 0}
+      value={local || 0} // Use raw number value for spinners
       InputProps={getInputProps()}
       inputProps={getInputElementProps()}
       onFocus={() => { focusedRef.current = true; }}
-      onChange={(e) => {
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         const v = parseFloat(e.target.value);
-        if (Number.isFinite(v)) handleChange(v);
+        if (Number.isFinite(v)) {
+          setLocal(v);
+        }
       }}
       onBlur={() => {
         focusedRef.current = false;
@@ -178,7 +170,7 @@ export function NumericInput({
         setLocal(rounded);
         onChange(rounded); // commit rounded value
       }}
-      onWheel={(e) => e.currentTarget.blur()} // avoid accidental scroll-change
+      onWheel={(e: React.WheelEvent<HTMLInputElement>) => e.currentTarget.blur()} // avoid accidental scroll-change
       sx={{
         '& input': {
           fontFeatureSettings: "'tnum' 1", // monospaced digits for alignment
