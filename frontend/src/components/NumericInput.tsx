@@ -44,7 +44,9 @@ export function NumericInput({
     new Decimal(local || 0).times(100).toNumber() : 
     (local || 0);
   const handleChange = (newDisplayValue: number) => {
-    const newValue = kind === "percent" ? newDisplayValue / 100 : newDisplayValue;
+    const newValue = kind === "percent" ? 
+      new Decimal(newDisplayValue).div(100).toNumber() : 
+      newDisplayValue;
     setLocal(newValue);
   };
 
