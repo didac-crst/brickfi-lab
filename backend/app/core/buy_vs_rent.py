@@ -474,95 +474,24 @@ class BuyVsRentAnalyzer:
 
     def net_advantage_over_time(self, years: int = 30) -> List[Dict]:
         """Calculate net advantage of buying vs pure renter baseline with component breakdown."""
-        baseline_data = self.pure_renter_baseline_over_time(years)
-        house_values = self.house_value_over_time(years)
+        # Use the same calculation as pure_baseline_vs_buy_over_time to ensure consistency
+        pure_baseline_data = self.pure_baseline_vs_buy_over_time(years)
         
+        # Convert PureBaselinePoint objects to dictionaries for API compatibility
         results = []
-        
-        for year in range(years + 1):
-            # Get baseline data
-            baseline_liquid = baseline_data[year]["baseline_liquid"]
-            cumulative_rent = baseline_data[year]["cumulative_rent"]
-            
-            # Calculate house equity
-            house_value = house_values[year]["house_value"]
-            
-            # Calculate remaining mortgage balance
-            remaining_balance = self.mortgage_amount
-            monthly_rate = self.i.annual_rate / 12
-            monthly_payment = self.monthly_payment()
-            
-            cumulative_interest = 0
-            cumulative_principal = 0
-            cumulative_other_owner_costs = 0
-            
-            for month in range(year * 12):
-                if remaining_balance <= 0:
-                    break
-                interest_payment = remaining_balance * monthly_rate
-                principal_payment = min(monthly_payment - interest_payment, remaining_balance)
-                remaining_balance -= principal_payment
-                
-                cumulative_interest += interest_payment
-                cumulative_principal += principal_payment
-                
-                # Other owner costs (taxes + insurance + maintenance)
-                monthly_other_costs = (
-                    self.i.taxe_fonciere_monthly + 
-                    self.i.insurance_monthly + 
-                    (self.i.price * self.i.maintenance_pct_annual / 12)
-                )
-                cumulative_other_owner_costs += monthly_other_costs
-            
-            # Calculate equity
-            equity = house_value - remaining_balance
-            
-            # Apply selling costs if sell_on_horizon and at horizon
-            if self.i.sell_on_horizon and year == years:
-                sell_fee = 0.05  # 5% selling cost
-                net_equity = equity * (1 - sell_fee)
-            else:
-                net_equity = equity
-            
-            # Calculate owner costs
-            cumulative_owner_costs = cumulative_interest + cumulative_other_owner_costs + (self.i.fees_pct * self.i.price)
-            
-            # Calculate cashflow gap (rent avoided vs owner costs)
-            cashflow_gap = cumulative_rent - cumulative_owner_costs
-            
-            # Calculate net advantage
-            net_advantage = net_equity - baseline_liquid + cashflow_gap
-            
-            # Component breakdown
-            appreciation_gain = house_value - self.i.price
-            if self.i.sell_on_horizon and year == years:
-                appreciation_gain *= (1 - sell_fee)
-            
-            principal_built = cumulative_principal
-            interest_drag = cumulative_interest
-            opportunity_cost_dp = baseline_liquid
-            rent_avoided_net = cashflow_gap + (self.i.fees_pct * self.i.price)
-            
+        for point in pure_baseline_data:
             results.append({
-                "year": year,
-                "baseline_liquid": baseline_liquid,
-                "cumulative_rent": cumulative_rent,
-                "equity": equity,
-                "net_equity": net_equity,
-                "cumulative_interest": cumulative_interest,
-                "cumulative_principal": cumulative_principal,
-                "cumulative_other_owner_costs": cumulative_other_owner_costs,
-                "cumulative_owner_costs": cumulative_owner_costs,
-                "cashflow_gap": cashflow_gap,
-                "net_advantage": net_advantage,
-                # Component breakdown
-                "appreciation_gain": appreciation_gain,
-                "principal_built": principal_built,
-                "interest_drag": interest_drag,
-                "opportunity_cost_dp": opportunity_cost_dp,
-                "rent_avoided_net": rent_avoided_net,
-                "house_value": house_value,
-                "remaining_mortgage": remaining_balance
+                "year": point.year,
+                "baseline_liquid": point.baseline_liquid,
+                "cumul_rent": point.cumul_rent,
+                "equity": point.equity,
+                "net_equity": point.net_equity,
+                "cumul_interest": point.cumul_interest,
+                "cumul_owner_other": point.cumul_owner_other,
+                "cumul_owner_cost": point.cumul_owner_cost,
+                "cashflow_gap": point.cashflow_gap,
+                "net_advantage": point.net_advantage,
+                "components": point.components
             })
         
         return results
