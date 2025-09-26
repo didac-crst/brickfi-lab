@@ -404,7 +404,7 @@ const BuyVsRentPage: React.FC = () => {
           {analysis && (
             <>
               {/* Summary Cards */}
-              <BuyVsRentSummary analysis={analysis} />
+              <BuyVsRentSummary analysis={analysis} inputs={inputs} />
 
               {/* Charts */}
               <Paper sx={{ p: 3, mt: 3 }}>

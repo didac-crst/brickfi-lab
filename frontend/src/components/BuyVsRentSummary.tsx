@@ -9,13 +9,14 @@ import {
   Alert,
 } from '@mui/material';
 import { TrendingUp, TrendingDown, Home, Euro } from '@mui/icons-material';
-import { BuyVsRentSummary as BuyVsRentSummaryType } from '../types/buyVsRent';
+import { BuyVsRentSummary as BuyVsRentSummaryType, BuyVsRentInputs } from '../types/buyVsRent';
 
 interface BuyVsRentSummaryProps {
   analysis: BuyVsRentSummaryType;
+  inputs?: BuyVsRentInputs;
 }
 
-const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
+const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
