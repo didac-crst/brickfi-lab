@@ -1,11 +1,11 @@
-# Housing Strategy Dashboard Makefile
+# BrickFi-Lab Makefile
 # Provides easy commands for development, deployment, and maintenance
 
 .PHONY: help install dev build start stop restart logs clean test lint format check-deps docker-build docker-push
 
 # Default target
 help: ## Show this help message
-	@echo "Housing Strategy Dashboard - Available Commands:"
+	@echo "BrickFi-Lab - Available Commands:"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""

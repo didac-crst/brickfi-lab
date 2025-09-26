@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, CashFlowData, PureBaselinePoint } from '../types/buyVsRent';
-import { ForwardDecisionInputs, ForwardDecisionResult, PremiumScheduleAnalysis } from '../types/forwardTracker';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -76,27 +75,5 @@ export const buyVsRentApi = {
       },
 };
 
-// Forward Tracker API calls
-export const forwardTrackerApi = {
-  makeDecision: async (inputs: ForwardDecisionInputs): Promise<ForwardDecisionResult> => {
-    const response = await api.post('/api/forward-tracker/decision', inputs);
-    return response.data;
-  },
-
-  analyzePremiumSchedule: async (inputs: ForwardDecisionInputs, maxMonths: number = 36): Promise<PremiumScheduleAnalysis> => {
-    const response = await api.post(`/api/forward-tracker/premium-schedule?max_months=${maxMonths}`, inputs);
-    return response.data;
-  },
-
-  getDefaultInputs: async (): Promise<ForwardDecisionInputs> => {
-    const response = await api.get('/api/forward-tracker/default-inputs');
-    return response.data;
-  },
-
-  getRateScenarios: async () => {
-    const response = await api.get('/api/forward-tracker/rate-scenarios');
-    return response.data;
-  },
-};
 
 export default api;

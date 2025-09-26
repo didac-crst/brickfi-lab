@@ -1,6 +1,6 @@
-# Housing Strategy Dashboard
+# BrickFi-Lab
 
-An interactive web application for comprehensive housing investment analysis and mortgage refinancing strategies. This dashboard provides advanced visual tools to compare buy vs rent scenarios, analyze wealth accumulation over time, and optimize forward rate decisions for mortgage refinancing.
+An interactive web application for comprehensive housing investment analysis. This dashboard provides advanced visual tools to compare buy vs rent scenarios and analyze wealth accumulation over time with sophisticated financial modeling.
 
 ## Features
 
@@ -15,11 +15,11 @@ An interactive web application for comprehensive housing investment analysis and
   - Wealth comparison with house appreciation and investment growth
   - Break-even analysis with realistic post-loan scenarios
 
-### 📈 Forward Rate Tracker
-- **Rate Decision Dashboard**: Visualize forward-loaded mortgage rates and decision triggers
-- **Premium Schedule Modeling**: Interactive charts showing how forward premiums affect rates over time
-- **Small-Loan Analysis**: Model surcharges and optimize loan amounts for better rates
-- **Decision Diagnostics**: Visual analysis of decision factors and recommendations
+### 📊 Advanced Analytics
+- **Pure Renter Baseline Analysis**: Rate-independent comparison with component breakdown
+- **Net Advantage Tracking**: Evolution of buying advantage over time
+- **Component Waterfall**: Detailed breakdown of appreciation, principal, interest, and opportunity costs
+- **Sensitivity Analysis**: Test robustness across different interest rates and rental prices
 
 ### 💰 Wealth Analysis
 - **House Appreciation**: Model property value growth over time (default: 2% annually)

@@ -3,12 +3,11 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Container, AppBar, Toolbar, Typography, Box, Paper, Button } from '@mui/material';
-import { Home, TrendingUp, Assessment } from '@mui/icons-material';
+import { Home } from '@mui/icons-material';
 
 // Import your pages
 import HomePage from './pages/HomePage';
 import BuyVsRentPage from './pages/BuyVsRentPage';
-import ForwardTrackerPage from './pages/ForwardTrackerPage';
 
 const theme = createTheme({
   palette: {
@@ -41,7 +40,7 @@ const Navigation: React.FC = () => {
       <Toolbar>
         <Home sx={{ mr: 2 }} />
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Housing Strategy Dashboard
+          BrickFi-Lab
         </Typography>
         <Button 
           color="inherit" 
@@ -59,13 +58,6 @@ const Navigation: React.FC = () => {
         >
           Buy vs Rent
         </Button>
-        <Button 
-          color="inherit" 
-          onClick={() => navigate('/forward-tracker')}
-          variant={location.pathname === '/forward-tracker' ? 'outlined' : 'text'}
-        >
-          Forward Tracker
-        </Button>
       </Toolbar>
     </AppBar>
   );
@@ -82,7 +74,6 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/buy-vs-rent" element={<BuyVsRentPage />} />
-              <Route path="/forward-tracker" element={<ForwardTrackerPage />} />
             </Routes>
           </Container>
         </Box>

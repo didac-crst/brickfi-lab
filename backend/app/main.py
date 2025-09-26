@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import buy_vs_rent, forward_tracker
+from app.api import buy_vs_rent
 
 app = FastAPI(
-    title="Housing Strategy Dashboard API",
-    description="API for housing investment analysis and mortgage refinancing decisions",
+    title="BrickFi-Lab API",
+    description="API for comprehensive housing investment analysis",
     version="1.0.0"
 )
 
@@ -19,11 +19,10 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(buy_vs_rent.router, prefix="/api/buy-vs-rent", tags=["buy-vs-rent"])
-app.include_router(forward_tracker.router, prefix="/api/forward-tracker", tags=["forward-tracker"])
 
 @app.get("/")
 async def root():
-    return {"message": "Housing Strategy Dashboard API", "version": "1.0.0"}
+    return {"message": "BrickFi-Lab API", "version": "1.0.0"}
 
 @app.get("/health")
 async def health_check():

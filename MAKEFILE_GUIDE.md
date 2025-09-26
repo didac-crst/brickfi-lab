@@ -1,6 +1,6 @@
-# Makefile Guide - Housing Strategy Dashboard
+# Makefile Guide - BrickFi-Lab
 
-This guide explains how to use the comprehensive Makefile included with the Housing Strategy Dashboard project.
+This guide explains how to use the comprehensive Makefile included with the BrickFi-Lab project.
 
 ## Quick Start Commands
 

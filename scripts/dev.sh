@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Housing Strategy Dashboard - Development Script
+# BrickFi-Lab - Development Script
 # This script provides an easy way to start the development environment
 
 set -e
 
-echo "🏠 Housing Strategy Dashboard - Development Setup"
+echo "🏠 BrickFi-Lab - Development Setup"
 echo "=================================================="
 
 # Check if Docker is running

@@ -10,7 +10,7 @@ import {
   Container,
   Paper,
 } from '@mui/material';
-import { TrendingUp, Assessment, Home, ArrowForward } from '@mui/icons-material';
+import { Home, ArrowForward } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
@@ -24,20 +24,13 @@ const HomePage: React.FC = () => {
       path: '/buy-vs-rent',
       color: '#e3f2fd',
     },
-    {
-      title: 'Forward Rate Tracker',
-      description: 'Analyze forward-loaded mortgage rates and make optimal timing decisions for refinancing.',
-      icon: <TrendingUp sx={{ fontSize: 40, color: 'secondary.main' }} />,
-      path: '/forward-tracker',
-      color: '#fce4ec',
-    },
   ];
 
   return (
     <Container maxWidth="lg">
       <Box sx={{ textAlign: 'center', mb: 6 }}>
         <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700, color: 'primary.main' }}>
-          Housing Strategy Dashboard
+          BrickFi-Lab
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto', mb: 4 }}>
           Make informed housing investment decisions with interactive analysis tools and visual insights
@@ -141,15 +134,6 @@ const HomePage: React.FC = () => {
             sx={{ minWidth: 200 }}
           >
             Buy vs Rent Analysis
-          </Button>
-          <Button
-            variant="outlined"
-            size="large"
-            startIcon={<TrendingUp />}
-            onClick={() => navigate('/forward-tracker')}
-            sx={{ minWidth: 200 }}
-          >
-            Forward Rate Tracker
           </Button>
         </Box>
       </Box>

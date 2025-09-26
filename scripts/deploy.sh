@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Housing Strategy Dashboard - Production Deployment Script
+# BrickFi-Lab - Production Deployment Script
 # This script deploys the application to production
 
 set -e
 
-echo "🚀 Housing Strategy Dashboard - Production Deployment"
+echo "🚀 BrickFi-Lab - Production Deployment"
 echo "====================================================="
 
 # Configuration
