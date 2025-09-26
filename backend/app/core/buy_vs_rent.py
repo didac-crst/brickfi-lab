@@ -192,11 +192,40 @@ class BuyVsRentAnalyzer:
         return total_payments - self.mortgage_amount
 
     def annual_saving_vs_rent(self) -> float:
-        """Annual rent minus economic owner cost (positive => owning cheaper in year 1)."""
-        # Use the same logic as owner_monthly_cost_year1() for consistency
-        monthly_owner_cost = self.owner_monthly_cost_year1()
-        rent = self.i.monthly_rent + self.i.renter_insurance_monthly
-        return (rent - monthly_owner_cost) * 12.0
+        """
+        True year-1 savings vs rent (positive => owning cheaper in year 1).
+        
+        This calculates the actual sum of monthly savings over the first 12 months,
+        accounting for declining interest and rent inflation.
+        """
+        monthly_payment = self.monthly_payment()
+        monthly_rate = self.i.annual_rate / 12
+        remaining_balance = self.mortgage_amount
+        
+        total_annual_savings = 0
+        
+        for month in range(12):
+            # Calculate monthly owner cost (interest + taxes + insurance + maintenance)
+            interest_payment = remaining_balance * monthly_rate
+            principal_payment = min(monthly_payment - interest_payment, remaining_balance)
+            remaining_balance -= principal_payment
+            
+            monthly_other_costs = (
+                self.i.taxe_fonciere_monthly + 
+                self.i.insurance_monthly + 
+                (self.i.price * self.i.maintenance_pct_annual / 12)
+            )
+            monthly_owner_cost = interest_payment + monthly_other_costs
+            
+            # Calculate monthly rent with inflation
+            monthly_rent = (self.i.monthly_rent + self.i.renter_insurance_monthly)
+            monthly_rent_with_inflation = monthly_rent * ((1 + self.i.rent_inflation_rate) ** (month / 12))
+            
+            # Monthly savings (positive = owning cheaper)
+            monthly_savings = monthly_rent_with_inflation - monthly_owner_cost
+            total_annual_savings += monthly_savings
+        
+        return total_annual_savings
 
     def break_even_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
         """Break-even horizon (years) accounting for loan payoff and reduced costs."""
@@ -425,11 +454,13 @@ class BuyVsRentAnalyzer:
         
         for year in range(years + 1):
             # Calculate cumulative rent paid with inflation (for reporting, not added to wealth)
+            # Use monthly compounding to match pure_baseline_vs_buy_over_time
             cumulative_rent = 0
-            for y in range(year):
-                # Rent increases annually by rent_inflation_rate
-                annual_rent = monthly_rent * 12 * ((1 + self.i.rent_inflation_rate) ** y)
-                cumulative_rent += annual_rent
+            for month in range(year * 12):
+                # Rent increases monthly by rent_inflation_rate
+                current_year = month // 12
+                monthly_rent_with_inflation = monthly_rent * ((1 + self.i.rent_inflation_rate) ** current_year)
+                cumulative_rent += monthly_rent_with_inflation
             
             results.append({
                 "year": year,
@@ -661,9 +692,14 @@ class BuyVsRentAnalyzer:
         return out
 
     def wealth_comparison_over_time(self, years: int = 30) -> List[Dict]:
-        """Compare total wealth between buying vs renting+investing over time."""
+        """
+        Compare total wealth between buying vs alternative investment strategies over time.
+        
+        This method implements different baseline strategies based on the baseline_mode:
+        - 'pure_renter': Only down payment invested (rate-independent baseline)
+        - 'budget_matched': Down payment + monthly contributions from owner savings
+        """
         house_values = self.house_value_over_time(years)
-        investment_values = self.investment_value_over_time(years)
         
         results = []
         
@@ -685,16 +721,15 @@ class BuyVsRentAnalyzer:
             
             house_wealth = house_value - remaining_balance
             
-            # Investment wealth = pure investment value (independent of mortgage rate)
-            # + cumulative savings from renting vs buying
-            investment_value = investment_values[year]["investment_value"]
-            
-            # Calculate cumulative savings from renting vs buying
-            # This should be: rent cost - total owner cost (full mortgage + taxes + insurance + maintenance)
-            if year == 0:
-                cumulative_savings = 0
-            else:
-                # Calculate total owner cost per month (full mortgage + taxes + insurance + maintenance)
+            # Calculate alternative investment wealth based on baseline mode
+            if self.i.baseline_mode == "pure_renter":
+                # Pure renter baseline: only down payment invested (rate-independent)
+                alternative_wealth = self.i.down_payment * ((1 + self.i.investment_return_rate) ** year)
+                monthly_contributions = 0  # No monthly contributions
+                
+            elif self.i.baseline_mode == "budget_matched":
+                # Budget-matched: down payment + monthly contributions from owner savings
+                # Calculate monthly owner cost (full mortgage + taxes + insurance + maintenance)
                 monthly_mortgage = self.monthly_payment()
                 monthly_taxes_insurance_maintenance = (
                     self.i.taxe_fonciere_monthly + 
@@ -703,28 +738,43 @@ class BuyVsRentAnalyzer:
                 )
                 total_monthly_owner_cost = monthly_mortgage + monthly_taxes_insurance_maintenance
                 
-                # Monthly savings from renting
-                monthly_rent_cost = self.i.monthly_rent + self.i.renter_insurance_monthly
-                monthly_savings = monthly_rent_cost - total_monthly_owner_cost
+                # Monthly rent cost with inflation
+                monthly_rent_cost = (self.i.monthly_rent + self.i.renter_insurance_monthly)
                 
-                # Cumulative savings over the year
-                cumulative_savings = monthly_savings * 12 * year
+                # Monthly contribution = max(0, owner_cost - rent_cost)
+                # This represents the extra money available to invest when renting is cheaper
+                monthly_contribution = max(0, total_monthly_owner_cost - monthly_rent_cost)
+                monthly_contributions = monthly_contribution
+                
+                # Calculate alternative wealth with monthly contributions
+                alternative_wealth = self.i.down_payment
+                monthly_investment_rate = self.i.investment_return_rate / 12
+                
+                for month in range(year * 12):
+                    # Apply rent inflation to monthly rent cost
+                    current_year = month // 12
+                    monthly_rent_with_inflation = monthly_rent_cost * ((1 + self.i.rent_inflation_rate) ** current_year)
+                    monthly_contribution = max(0, total_monthly_owner_cost - monthly_rent_with_inflation)
+                    
+                    alternative_wealth *= (1 + monthly_investment_rate)
+                    alternative_wealth += monthly_contribution
             
-            investment_wealth = investment_value + cumulative_savings
+            else:
+                raise ValueError(f"Unknown baseline_mode: {self.i.baseline_mode}")
             
             # Net wealth difference (positive = buying is better)
-            wealth_difference = house_wealth - investment_wealth
+            wealth_difference = house_wealth - alternative_wealth
             
             results.append({
                 "year": year,
                 "house_wealth": house_wealth,
-                "investment_wealth": investment_wealth,  # DEPRECATED NAME
-                "rent_plus_invest_wealth": investment_wealth,  # clearer alias
+                "investment_wealth": alternative_wealth,  # DEPRECATED NAME
+                "alternative_wealth": alternative_wealth,  # clearer name
                 "wealth_difference": wealth_difference,
                 "house_value": house_value,
                 "remaining_mortgage": remaining_balance,
-                "pure_investment_value": investment_value,  # Pure investment (independent of mortgage)
-                "cumulative_savings": cumulative_savings  # Renting savings (depends on mortgage)
+                "pure_investment_value": self.i.down_payment * ((1 + self.i.investment_return_rate) ** year),  # Pure investment (independent of mortgage)
+                "monthly_contributions": monthly_contributions  # Monthly contributions to alternative investment
             })
         
         return results
