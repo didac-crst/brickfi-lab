@@ -32,6 +32,8 @@ export interface BuyVsRentInputs {
   house_appreciation_rate: number;
   /** Annual investment return rate for down payment (e.g., 0.07 for 7% per year) */
   investment_return_rate: number;
+  /** Annual rent inflation rate (e.g., 0.02 for 2% per year) */
+  rent_inflation_rate: number;
   /** Baseline comparison mode - 'pure_renter' or 'budget_matched' */
   baseline_mode: 'pure_renter' | 'budget_matched';
   /** Whether to sell the house at the evaluation horizon */

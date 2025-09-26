@@ -319,6 +319,19 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
                 helperText="Annual return if down payment was invested (e.g., 7% per year)"
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Rent Inflation Rate"
+                type="number"
+                value={inputs.rent_inflation_rate * 100}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('rent_inflation_rate', (parseFloat(e.target.value) || 0) / 100)}
+                InputProps={{
+                  endAdornment: '%',
+                }}
+                helperText="Annual rent inflation rate (e.g., 2% per year)"
+              />
+            </Grid>
           </Grid>
 
           <Divider sx={{ my: 3 }}>

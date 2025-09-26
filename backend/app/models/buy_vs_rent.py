@@ -41,6 +41,7 @@ class BuyVsRentInputs(BaseModel):
         renter_insurance_monthly (float): Optional renter insurance monthly cost in euros
         house_appreciation_rate (float): Annual house value appreciation rate (0-20%)
         investment_return_rate (float): Annual investment return rate for down payment (0-30%)
+        rent_inflation_rate (float): Annual rent inflation rate (0-10%)
         baseline_mode (str): Comparison mode - 'pure_renter' or 'budget_matched'
         sell_on_horizon (bool): Whether to sell the house at the evaluation horizon
     
@@ -68,6 +69,7 @@ class BuyVsRentInputs(BaseModel):
     renter_insurance_monthly: float = Field(0.0, description="Optional renter insurance (euros)", ge=0)
     house_appreciation_rate: float = Field(..., description="Annual house appreciation rate (e.g., 0.02 for 2% per year)", ge=0, lt=0.2)
     investment_return_rate: float = Field(..., description="Annual investment return rate for down payment (e.g., 0.07 for 7% per year)", ge=0, lt=0.3)
+    rent_inflation_rate: float = Field(0.02, description="Annual rent inflation rate (e.g., 0.02 for 2% per year)", ge=0, lt=0.1)
     baseline_mode: str = Field("pure_renter", description="Baseline comparison mode: 'pure_renter' (DP compounded) or 'budget_matched' (legacy)", pattern="^(pure_renter|budget_matched)$")
     sell_on_horizon: bool = Field(False, description="Whether to sell the house at the evaluation horizon")
 
@@ -85,7 +87,8 @@ class BuyVsRentInputs(BaseModel):
                 "maintenance_pct_annual": 0.0,
                 "renter_insurance_monthly": 0,
                 "house_appreciation_rate": 0.02,
-                "investment_return_rate": 0.07
+                "investment_return_rate": 0.07,
+                "rent_inflation_rate": 0.02
             }
         }
 

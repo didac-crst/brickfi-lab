@@ -424,8 +424,12 @@ class BuyVsRentAnalyzer:
         monthly_investment_rate = self.i.investment_return_rate / 12
         
         for year in range(years + 1):
-            # Calculate cumulative rent paid (for reporting, not added to wealth)
-            cumulative_rent = monthly_rent * 12 * year
+            # Calculate cumulative rent paid with inflation (for reporting, not added to wealth)
+            cumulative_rent = 0
+            for y in range(year):
+                # Rent increases annually by rent_inflation_rate
+                annual_rent = monthly_rent * 12 * ((1 + self.i.rent_inflation_rate) ** y)
+                cumulative_rent += annual_rent
             
             results.append({
                 "year": year,
@@ -567,8 +571,11 @@ class BuyVsRentAnalyzer:
             y = m // 12
             # Stop amortizing after loan term: no PI beyond term, but still pay taxes/ins/maint
             if m > 0:
-                # renter consumption
-                cumul_rent += (i.monthly_rent + i.renter_insurance_monthly)
+                # renter consumption with rent inflation
+                # Calculate current year's rent with inflation
+                current_year = m // 12
+                monthly_rent_with_inflation = (i.monthly_rent + i.renter_insurance_monthly) * ((1 + i.rent_inflation_rate) ** current_year)
+                cumul_rent += monthly_rent_with_inflation
 
                 # owner side monthly costs
                 if m <= term_months and rb > 1e-8:
