@@ -33,14 +33,15 @@ export function NumericInput({
   }, [value]);
 
   // Determine default step and dp based on kind
-  const defaultStep = kind === "percent" ? 0.1 : (kind === "currency" ? 0.01 : 1);
-  const defaultDp = kind === "percent" ? 1 : (kind === "currency" ? 2 : 0);
+  const defaultStep = kind === "percent" ? 0.01 : (kind === "currency" ? 0.01 : 1);
+  const defaultDp = kind === "percent" ? 2 : (kind === "currency" ? 2 : 0);
   const finalStep = step ?? defaultStep;
   const finalDp = dp ?? defaultDp;
 
   // For percent inputs, we need to convert between fraction (internal) and percentage (display)
+  // Don't round the display value - preserve full precision for user input
   const displayValue = kind === "percent" ? 
-    new Decimal(local || 0).times(100).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber() : 
+    new Decimal(local || 0).times(100).toNumber() : 
     (local || 0);
   const handleChange = (newDisplayValue: number) => {
     const newValue = kind === "percent" ? newDisplayValue / 100 : newDisplayValue;
