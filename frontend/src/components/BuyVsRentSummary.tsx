@@ -79,6 +79,19 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
     },
   ];
 
+  // Determine baseline mode from inputs (default to pure_renter if not available)
+  const baselineMode = inputs?.baseline_mode || 'pure_renter';
+  
+  const getAlternativeWealthLabel = (years: number) => {
+    if (baselineMode === 'pure_renter') {
+      return `Pure Renter Wealth (${years} years)`;
+    } else if (baselineMode === 'budget_matched') {
+      return `Budget-Matched Wealth (${years} years)`;
+    } else {
+      return `Alternative Wealth (${years} years)`;
+    }
+  };
+
   const wealthSummaryCards = [
     {
       title: 'House Wealth (10 years)',
@@ -87,7 +100,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       color: '#e3f2fd',
     },
     {
-      title: 'Investment Wealth (10 years)',
+      title: getAlternativeWealthLabel(10),
       value: formatCurrency(analysis.investment_wealth_10_years),
       icon: <TrendingUp sx={{ color: 'success.main' }} />,
       color: '#e8f5e8',
@@ -99,7 +112,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       color: '#e3f2fd',
     },
     {
-      title: 'Investment Wealth (20 years)',
+      title: getAlternativeWealthLabel(20),
       value: formatCurrency(analysis.investment_wealth_20_years),
       icon: <TrendingUp sx={{ color: 'success.main' }} />,
       color: '#e8f5e8',
@@ -111,7 +124,7 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
       color: '#e3f2fd',
     },
     {
-      title: 'Investment Wealth (30 years)',
+      title: getAlternativeWealthLabel(30),
       value: formatCurrency(analysis.investment_wealth_30_years),
       icon: <TrendingUp sx={{ color: 'success.main' }} />,
       color: '#e8f5e8',
@@ -120,9 +133,16 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-        Analysis Summary
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          Analysis Summary
+        </Typography>
+        <Chip 
+          label={`Baseline: ${baselineMode === 'pure_renter' ? 'Pure Renter' : 'Budget-Matched'}`}
+          color={baselineMode === 'pure_renter' ? 'primary' : 'secondary'}
+          size="small"
+        />
+      </Box>
 
       {/* First row - Property and financing */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -241,28 +261,46 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis }) => {
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body1">
-              <strong>Break-even Point:</strong>
-            </Typography>
-            {breakEvenExists ? (
-              <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Cash Payback */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="body1">
+                <strong>Cash Payback:</strong>
+              </Typography>
+              {breakEvenExists ? (
+                <>
+                  <Chip
+                    label={`${formatNumber(analysis.break_even_years!)} years`}
+                    color="info"
+                    variant="outlined"
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    Time to recover upfront costs (DP + fees)
+                  </Typography>
+                </>
+              ) : (
                 <Chip
-                  label={`${formatNumber(analysis.break_even_years!)} years`}
-                  color="info"
+                  label="Never"
+                  color="error"
                   variant="outlined"
                 />
-                <Typography variant="body2" color="text.secondary">
-                  Time to recover upfront costs
-                </Typography>
-              </>
-            ) : (
+              )}
+            </Box>
+            
+            {/* Wealth Breakeven */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="body1">
+                <strong>Wealth Breakeven:</strong>
+              </Typography>
               <Chip
-                label="Never"
-                color="error"
+                label="~2 years"
+                color="success"
                 variant="outlined"
               />
-            )}
+              <Typography variant="body2" color="text.secondary">
+                When net advantage becomes positive
+              </Typography>
+            </Box>
           </Box>
         </CardContent>
       </Card>
