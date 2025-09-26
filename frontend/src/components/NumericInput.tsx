@@ -1,39 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TextField, TextFieldProps } from "@mui/material";
-import { formatCurrency, formatPercent, formatNumber, normalizeInput, parseToNumber } from "../utils/format";
+import Decimal from "decimal.js-light";
 
 type Kind = "currency" | "percent" | "number";
-type Locale = "de-DE" | "fr-FR" | "en-US";
 
 interface NumericInputProps extends Omit<TextFieldProps, 'value' | 'onChange'> {
   kind: Kind;
   value: number;               // internal canonical (e.g., 1234.56 for €; 0.07 for %)
   onChange: (v: number) => void;
-  locale?: Locale;
-  dp?: number;                 // display decimals (2 for € / 1 for % / as needed)
+  dp?: number;                 // decimals to clamp to on blur (2 for €, 1 for %)
+  min?: number; 
+  max?: number; 
+  step?: number;               // enable spinner step
 }
 
 export function NumericInput({ 
   kind, 
   value, 
   onChange, 
-  locale = "fr-FR", 
   dp,
+  min,
+  max,
+  step,
   ...textFieldProps 
 }: NumericInputProps) {
-  const [raw, setRaw] = useState<string>("");      // what the user is typing
-  const [focused, setFocused] = useState(false);
+  const [local, setLocal] = useState<number>(value);
+  const focusedRef = useRef(false);
 
-  function formatDisplay(v: number): string {
-    switch (kind) {
-      case "currency": 
-        return formatCurrency(v, { locale, dp: dp ?? 2 });
-      case "percent":  
-        return formatPercent(v, { locale, dp: dp ?? 1 });
-      default:         
-        return formatNumber(v, { locale, dp: dp ?? 0 });
-    }
-  }
+  // sync from parent only when NOT editing; prevents snap-back
+  useEffect(() => {
+    if (!focusedRef.current) setLocal(value);
+  }, [value]);
+
+  // Determine default step and dp based on kind
+  const defaultStep = kind === "percent" ? 0.1 : (kind === "currency" ? 0.01 : 1);
+  const defaultDp = kind === "percent" ? 1 : (kind === "currency" ? 2 : 0);
+  const finalStep = step ?? defaultStep;
+  const finalDp = dp ?? defaultDp;
+
+  // For percent inputs, we need to convert between fraction (internal) and percentage (display)
+  const displayValue = kind === "percent" ? local * 100 : local;
+  const handleChange = (newDisplayValue: number) => {
+    const newValue = kind === "percent" ? newDisplayValue / 100 : newDisplayValue;
+    setLocal(newValue);
+  };
 
   function getInputProps() {
     switch (kind) {
@@ -50,29 +60,34 @@ export function NumericInput({
     }
   }
 
+  function getInputElementProps() {
+    return {
+      min,
+      max,
+      step: finalStep,
+    };
+  }
+
   return (
     <TextField
       {...textFieldProps}
-      type="text"
+      type="number"
       inputMode="decimal"
-      value={focused ? raw : formatDisplay(value)}
+      value={Number.isFinite(displayValue) ? displayValue : 0}
       InputProps={getInputProps()}
-      onFocus={() => { 
-        setFocused(true); 
-        setRaw(String(value)); 
-      }}
+      inputProps={getInputElementProps()}
+      onFocus={() => { focusedRef.current = true; }}
       onChange={(e) => {
-        const s = normalizeInput(e.target.value);
-        setRaw(s);
-        const parsed = parseToNumber(s);
-        if (parsed !== null) onChange(parsed);
+        const v = parseFloat(e.target.value);
+        if (Number.isFinite(v)) handleChange(v);
       }}
       onBlur={() => {
-        // clamp/round to display precision on blur
-        const parsed = parseToNumber(normalizeInput(raw));
-        if (parsed !== null) onChange(parsed);
-        setFocused(false);
+        focusedRef.current = false;
+        const rounded = new Decimal(local).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber();
+        setLocal(rounded);
+        onChange(rounded); // commit rounded value
       }}
+      onWheel={(e) => e.currentTarget.blur()} // avoid accidental scroll-change
       sx={{
         '& input': {
           fontFeatureSettings: "'tnum' 1", // monospaced digits for alignment
