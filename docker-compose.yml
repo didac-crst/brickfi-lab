@@ -5,7 +5,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
       - PYTHONPATH=/app
     volumes:
@@ -19,9 +19,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - REACT_APP_API_URL=http://brickfi-lab-backend:8000
+      - REACT_APP_API_URL=http://localhost:${BACKEND_PORT:-8000}
     volumes:
       - ./frontend:/app
       - ./shared:/shared
