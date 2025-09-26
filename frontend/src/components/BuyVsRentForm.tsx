@@ -19,7 +19,7 @@ import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
 import { getDefaultBuyVsRentInputs, getDefaultBuyVsRentInputsSync } from '../utils/config';
-import { NumericInput } from './NumericInput';
+import { NumericInput, PercentInput } from './NumericInput';
 
 interface BuyVsRentFormProps {
   onInputsChange: (inputs: BuyVsRentInputs) => void;
@@ -164,10 +164,9 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
         
         <Grid item xs={6}>
-          <NumericInput
+          <PercentInput
             fullWidth
             label="Amortization Rate"
-            kind="percent"
             value={inputs.amortization_rate}
             onChange={(value) => handleInputChange('amortization_rate', value)}
             dp={2}
@@ -234,10 +233,9 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
         
         <Grid item xs={12}>
-          <NumericInput
+          <PercentInput
             fullWidth
             label="Maintenance (Annual %)"
-            kind="percent"
             value={inputs.maintenance_pct_annual}
             onChange={(value) => handleInputChange('maintenance_pct_annual', value)}
             dp={2}
@@ -287,35 +285,32 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <NumericInput
+              <PercentInput
                 fullWidth
                 label="House Appreciation Rate"
-                kind="percent"
                 value={inputs.house_appreciation_rate}
                 onChange={(value) => handleInputChange('house_appreciation_rate', value)}
-                dp={1}
+                dp={2}
                 helperText="Annual house value appreciation (e.g., 2% per year)"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <NumericInput
+              <PercentInput
                 fullWidth
                 label="Investment Return Rate"
-                kind="percent"
                 value={inputs.investment_return_rate}
                 onChange={(value) => handleInputChange('investment_return_rate', value)}
-                dp={1}
+                dp={2}
                 helperText="Annual return if down payment was invested (e.g., 7% per year)"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <NumericInput
+              <PercentInput
                 fullWidth
                 label="Rent Inflation Rate"
-                kind="percent"
                 value={inputs.rent_inflation_rate}
                 onChange={(value) => handleInputChange('rent_inflation_rate', value)}
-                dp={1}
+                dp={2}
                 helperText="Annual rent inflation rate (e.g., 2% per year)"
               />
             </Grid>
