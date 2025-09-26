@@ -76,7 +76,7 @@ const BuyVsRentPage: React.FC = () => {
           annual_rate: inputs.annual_rate,
           annual_rate_description: "Fixed mortgage nominal annual interest rate",
           amortization_rate: inputs.amortization_rate,
-          amortization_rate_description: "Monthly amortization rate (e.g., 0.4% per month)"
+          amortization_rate_description: "Yearly amortization rate (e.g., 0.045 for 4.5% per year)"
         },
         monthly_costs: {
           monthly_rent: inputs.monthly_rent,
@@ -88,7 +88,9 @@ const BuyVsRentPage: React.FC = () => {
           maintenance_pct_annual: inputs.maintenance_pct_annual,
           maintenance_description: "Annual maintenance costs as percentage of property price",
           renter_insurance_monthly: inputs.renter_insurance_monthly,
-          renter_insurance_description: "Optional renter insurance monthly cost in euros"
+          renter_insurance_description: "Optional renter insurance monthly cost in euros",
+          rent_inflation_rate: inputs.rent_inflation_rate,
+          rent_inflation_rate_description: "Annual rent inflation rate (e.g., 0.02 for 2% per year)"
         },
         investment_parameters: {
           house_appreciation_rate: inputs.house_appreciation_rate,

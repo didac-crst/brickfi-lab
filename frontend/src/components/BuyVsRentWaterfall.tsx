@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Tooltip } from '@mui/material';
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
 } from 'recharts';
 import { PureBaselinePoint } from '../types/buyVsRent';
 
@@ -33,16 +33,18 @@ const BuyVsRentWaterfall: React.FC<Props> = ({ data, horizonYears = 30 }) => {
         <Typography variant="h6" gutterBottom>
           Buy vs Pure Renter — Component Breakdown (Year {point.year})
         </Typography>
-        <Typography variant="body2" gutterBottom>
-          Net Advantage = {point.net_advantage.toFixed(0)} €
-        </Typography>
+        <Tooltip title="Net Advantage = Owner Equity - Baseline Wealth + Cashflow Gap - Closing Costs">
+          <Typography variant="body2" gutterBottom sx={{ cursor: 'help' }}>
+            Net Advantage = {point.net_advantage.toFixed(0)} €
+          </Typography>
+        </Tooltip>
         <div style={{ width: '100%', height: 360 }}>
           <ResponsiveContainer>
             <BarChart data={rows}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip formatter={(v: number) => `${v.toFixed(0)} €`} />
+              <RechartsTooltip formatter={(v: number) => `${v.toFixed(0)} €`} />
               <Legend />
               <Bar dataKey="value" name="Contribution (±€)" />
             </BarChart>

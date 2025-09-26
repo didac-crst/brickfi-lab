@@ -124,6 +124,7 @@ class BuyVsRentSummary(BaseModel):
         baseline_liquid_30_years (float): Pure renter baseline wealth after 30 years
         net_advantage_30_years (float): Net advantage of buying vs pure renter baseline after 30 years
         cashflow_gap_30_years (float): Cumulative cashflow gap after 30 years
+        accounting_identity_formula (str): Mathematical formula for net advantage calculation
     """
     property_price: float
     total_acquisition_cost: float
@@ -149,6 +150,7 @@ class BuyVsRentSummary(BaseModel):
     baseline_liquid_30_years: float
     net_advantage_30_years: float
     cashflow_gap_30_years: float
+    accounting_identity_formula: str
 
     class Config:
         json_schema_extra = {
@@ -164,7 +166,18 @@ class BuyVsRentSummary(BaseModel):
                 "monthly_rent_total": 1700,
                 "owner_vs_rent_monthly": 301.67,
                 "calculated_loan_term_years": 20.8,
-                "yearly_amortization_rate": 0.05
+                "yearly_amortization_rate": 0.05,
+                "house_wealth_10_years": 450000,
+                "investment_wealth_10_years": 400000,
+                "house_wealth_20_years": 550000,
+                "investment_wealth_20_years": 500000,
+                "house_wealth_30_years": 650000,
+                "investment_wealth_30_years": 600000,
+                "wealth_crossover_year": 15,
+                "baseline_liquid_30_years": 761225.50,
+                "net_advantage_30_years": 937298.22,
+                "cashflow_gap_30_years": 792842.93,
+                "accounting_identity_formula": "Net Advantage = Owner Equity - Baseline Wealth + Cashflow Gap - Closing Costs"
             }
         }
 

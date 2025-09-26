@@ -322,7 +322,8 @@ class BuyVsRentAnalyzer:
             # Pure renter baseline metrics
             baseline_liquid_30_years=baseline_liquid_30,
             net_advantage_30_years=net_advantage_30,
-            cashflow_gap_30_years=cashflow_gap_30
+            cashflow_gap_30_years=cashflow_gap_30,
+            accounting_identity_formula="Net Advantage = Owner Equity - Baseline Wealth + Cashflow Gap - Closing Costs"
         )
 
     def sensitivity(

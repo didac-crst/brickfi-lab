@@ -59,6 +59,12 @@ const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs })
       icon: <TrendingUp sx={{ color: 'error.main' }} />,
       color: '#ffebee',
     },
+    {
+      title: 'Owner Equity After Fees (30y)',
+      value: formatCurrency(analysis.house_wealth_30_years - (analysis.total_acquisition_cost - analysis.property_price)),
+      icon: <Home sx={{ color: 'success.main' }} />,
+      color: '#e8f5e8',
+    },
     // Second row - Monthly costs
     {
       title: 'Monthly Credit Repayment',
