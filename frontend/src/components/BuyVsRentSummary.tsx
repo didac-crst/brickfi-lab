@@ -13,7 +13,7 @@ import { BuyVsRentSummary as BuyVsRentSummaryType, BuyVsRentInputs } from '../ty
 
 interface BuyVsRentSummaryProps {
   analysis: BuyVsRentSummaryType;
-  inputs?: BuyVsRentInputs;
+  inputs?: BuyVsRentInputs | null;
 }
 
 const BuyVsRentSummary: React.FC<BuyVsRentSummaryProps> = ({ analysis, inputs }) => {
