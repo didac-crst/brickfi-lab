@@ -55,8 +55,41 @@ const BuyVsRentPage: React.FC = () => {
     }
   };
 
-  const exportAnalysisForLLM = () => {
+  const exportAnalysisForLLM = async () => {
     if (!inputs || !analysis) return;
+    
+    // Fetch additional API endpoints for complete export
+    const [cashFlowData, houseValueData, investmentValueData, wealthComparisonData, pureRenterBaselineData] = await Promise.all([
+      fetch('/api/buy-vs-rent/cash-flow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputs)
+      }).then(res => res.json()).catch(() => null),
+      
+      fetch('/api/buy-vs-rent/house-value-over-time', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputs)
+      }).then(res => res.json()).catch(() => null),
+      
+      fetch('/api/buy-vs-rent/investment-value-over-time', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputs)
+      }).then(res => res.json()).catch(() => null),
+      
+      fetch('/api/buy-vs-rent/wealth-comparison-over-time', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputs)
+      }).then(res => res.json()).catch(() => null),
+      
+      fetch('/api/buy-vs-rent/pure-renter-baseline-over-time', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputs)
+      }).then(res => res.json()).catch(() => null)
+    ]);
     
     const exportData = {
       analysis_type: "Buy vs Rent Property Analysis",
@@ -341,6 +374,110 @@ const BuyVsRentPage: React.FC = () => {
             "Component breakdown shows which factors drive the net advantage"
           ]
         }
+      } : null,
+      cash_flow_analysis: cashFlowData ? {
+        description: "Monthly cash flow analysis showing detailed breakdown of ownership costs",
+        endpoint: "POST /api/buy-vs-rent/cash-flow",
+        purpose: "Provides month-by-month breakdown of ownership costs including principal, interest, taxes, insurance, and maintenance",
+        data_points: cashFlowData.slice(0, 12).map((month: any) => ({
+          month: month.month,
+          month_description: "Month number from start of ownership",
+          principal: month.principal,
+          principal_description: "Principal portion of mortgage payment",
+          interest: month.interest,
+          interest_description: "Interest portion of mortgage payment",
+          property_tax: month.property_tax,
+          property_tax_description: "Monthly property tax equivalent",
+          insurance: month.insurance,
+          insurance_description: "Monthly insurance cost",
+          maintenance: month.maintenance,
+          maintenance_description: "Monthly maintenance cost",
+          total_cost: month.total_cost,
+          total_cost_description: "Total monthly ownership cost"
+        })),
+        interpretation: [
+          "Shows how ownership costs are distributed between principal, interest, and other expenses",
+          "Principal payments build equity while interest payments are pure cost",
+          "Other costs (taxes, insurance, maintenance) continue even after loan payoff"
+        ]
+      } : null,
+      house_value_over_time: houseValueData ? {
+        description: "House value appreciation over time analysis",
+        endpoint: "POST /api/buy-vs-rent/house-value-over-time",
+        purpose: "Tracks how the property value grows over time based on appreciation rate",
+        data_points: houseValueData.filter((point: any) => [5, 10, 15, 20, 25, 30].includes(point.year)).map((point: any) => ({
+          year: point.year,
+          year_description: "Years from purchase",
+          house_value: point.house_value,
+          house_value_description: "Property value based on appreciation rate",
+          appreciation_gain: point.appreciation_gain,
+          appreciation_gain_description: "Total appreciation gain from original purchase price"
+        })),
+        interpretation: [
+          "Shows compound growth of property value over time",
+          "Appreciation gain represents wealth building through property ownership",
+          "Important for long-term wealth comparison vs investment alternatives"
+        ]
+      } : null,
+      investment_value_over_time: investmentValueData ? {
+        description: "Investment portfolio value over time analysis",
+        endpoint: "POST /api/buy-vs-rent/investment-value-over-time",
+        purpose: "Tracks how the down payment would grow if invested in the market",
+        data_points: investmentValueData.filter((point: any) => [5, 10, 15, 20, 25, 30].includes(point.year)).map((point: any) => ({
+          year: point.year,
+          year_description: "Years from initial investment",
+          investment_value: point.investment_value,
+          investment_value_description: "Value of down payment invested at market return rate",
+          total_return: point.total_return,
+          total_return_description: "Total return on investment from original down payment"
+        })),
+        interpretation: [
+          "Shows opportunity cost of using down payment for property vs investing",
+          "Represents the baseline for comparing property ownership returns",
+          "Critical for understanding the true cost of property ownership"
+        ]
+      } : null,
+      wealth_comparison_over_time: wealthComparisonData ? {
+        description: "Comprehensive wealth comparison between property ownership and investment strategy",
+        endpoint: "POST /api/buy-vs-rent/wealth-comparison-over-time",
+        purpose: "Compares total wealth accumulation between buying property vs renting and investing",
+        data_points: wealthComparisonData.filter((point: any) => [5, 10, 15, 20, 25, 30].includes(point.year)).map((point: any) => ({
+          year: point.year,
+          year_description: "Years from start of analysis",
+          house_wealth: point.house_wealth,
+          house_wealth_description: "Total house wealth (value - remaining mortgage)",
+          investment_wealth: point.investment_wealth,
+          investment_wealth_description: "Total investment wealth (rent+invest strategy)",
+          wealth_difference: point.wealth_difference,
+          wealth_difference_description: "Difference between house wealth and investment wealth (positive = house better)"
+        })),
+        interpretation: [
+          "Shows which strategy builds more wealth over time",
+          "House wealth includes equity building and appreciation",
+          "Investment wealth includes market returns and rent savings",
+          "Crossover point indicates when one strategy becomes superior"
+        ]
+      } : null,
+      pure_renter_baseline_over_time: pureRenterBaselineData ? {
+        description: "Pure renter baseline analysis over time",
+        endpoint: "POST /api/buy-vs-rent/pure-renter-baseline-over-time",
+        purpose: "Shows how down payment would grow if invested independently (rate-independent baseline)",
+        data_points: pureRenterBaselineData.filter((point: any) => [5, 10, 15, 20, 25, 30].includes(point.year)).map((point: any) => ({
+          year: point.year,
+          year_description: "Years from initial investment",
+          baseline_liquid: point.baseline_liquid,
+          baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+          cumul_rent: point.cumul_rent,
+          cumul_rent_description: "Cumulative rent paid (treated as consumption)",
+          net_advantage: point.net_advantage,
+          net_advantage_description: "Net advantage of buying vs pure renter baseline"
+        })),
+        interpretation: [
+          "Pure renter baseline is completely independent of mortgage rates",
+          "Down payment grows at investment rate, rent is treated as consumption",
+          "Net advantage shows true benefit of property ownership vs pure investment",
+          "Most transparent comparison for buy vs rent decision"
+        ]
       } : null,
       interpretation: {
         summary: analysis.annual_saving_vs_rent >= 0 
