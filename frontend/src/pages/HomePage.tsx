@@ -118,25 +118,6 @@ const HomePage: React.FC = () => {
         </Grid>
       </Paper>
 
-      <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-          Ready to Get Started?
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Choose an analysis tool below to begin exploring your housing investment options.
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<Home />}
-            onClick={() => navigate('/buy-vs-rent')}
-            sx={{ minWidth: 200 }}
-          >
-            Buy vs Rent Analysis
-          </Button>
-        </Box>
-      </Box>
     </Container>
   );
 };
