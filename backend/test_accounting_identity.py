@@ -49,8 +49,11 @@ def test_net_advantage_identity():
     failed_years = []
     
     for point in results:
-        # Calculate expected net advantage
-        expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap
+        # Calculate expected net advantage (updated formula includes closing costs)
+        if point.year == 0:
+            expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap
+        else:
+            expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap - 50000  # closing costs
         
         # Calculate error
         error = abs(point.net_advantage - expected_net_advantage)
@@ -105,11 +108,11 @@ def test_component_reconciliation():
     failed_years = []
     
     for point in results:
-        # Calculate component sum
+        # Calculate component sum (updated for new component structure)
         component_sum = (
             point.components["appreciation_gain"] +
             point.components["principal_built"] +
-            point.components["interest_drag"] +
+            point.components["down_payment"] +
             point.components["opportunity_cost_dp"] +
             point.components["rent_avoided_net"] +
             point.components["closing_costs"]

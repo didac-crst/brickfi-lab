@@ -369,8 +369,9 @@ const BuyVsRentPage: React.FC = () => {
       </Typography>
       
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Compare the economic costs of buying vs renting a property. This analysis considers first-year ownership costs 
-        (excluding principal payments) versus rental costs to help you make an informed decision.
+        Comprehensive buy vs rent analysis including wealth comparison, net advantage calculation, and component breakdown. 
+        This analysis considers ownership costs, property appreciation, investment returns, and long-term wealth building 
+        to help you make an informed decision.
       </Typography>
 
       <Grid container spacing={3}>

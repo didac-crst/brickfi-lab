@@ -550,8 +550,9 @@ class BuyVsRentAnalyzer:
                     interest = 0.0
                     owner_monthly = other_fixed_m
                 cumul_owner_other += other_fixed_m
-                # Owner costs = interest + other costs (excluding principal)
+                # Owner costs = interest + other costs (excluding principal and closing costs)
                 # Principal is tracked separately and builds equity
+                # Closing costs are tracked separately and not included in monthly cashflow
                 cumul_owner_cost += (interest + other_fixed_m)
 
             # yearly checkpoint (m % 12 == 0)
@@ -564,8 +565,18 @@ class BuyVsRentAnalyzer:
 
                 baseline_liquid = self._fv_lump_sum(i.down_payment, i.investment_return_rate, y)
 
-                cashflow_gap = cumul_rent - cumul_owner_cost
-                net_advantage = net_equity - baseline_liquid + cashflow_gap
+                # Cashflow gap = rent avoided - owner costs (excluding closing costs)
+                # Closing costs are tracked separately as a one-time expense
+                cashflow_gap = cumul_rent - (cumul_owner_cost - closing_costs)
+                
+                # Net advantage calculation
+                # net_advantage = net_equity - baseline_liquid + cashflow_gap - closing_costs
+                # where cashflow_gap excludes closing costs, so we subtract them separately
+                # At year 0, no closing costs have been paid yet
+                if y == 0:
+                    net_advantage = net_equity - baseline_liquid + cashflow_gap
+                else:
+                    net_advantage = net_equity - baseline_liquid + cashflow_gap - closing_costs
 
                 # Component breakdown for waterfall analysis
                 # Net advantage = net_equity - baseline_liquid + cashflow_gap
@@ -573,27 +584,24 @@ class BuyVsRentAnalyzer:
                 # Components should sum to net_advantage
                 
                 # The net advantage can be broken down as:
-                # net_advantage = (house_value - remaining_mortgage) - baseline_liquid + (cumul_rent - cumul_owner_cost)
-                # = house_value - remaining_mortgage - baseline_liquid + cumul_rent - cumul_owner_cost
-                # = (house_value - i.price) + (i.price - remaining_mortgage) - baseline_liquid + cumul_rent - cumul_owner_cost
-                # = appreciation_gain + principal_built - baseline_liquid + cumul_rent - cumul_owner_cost
+                # Calculate components for waterfall analysis (Option A: simpler approach)
+                # net_advantage = net_equity - baseline_liquid + cashflow_gap
+                # where: net_equity = house_value - remaining_mortgage (includes down payment)
+                #        cashflow_gap = cumul_rent - cumul_owner_cost (excluding closing costs)
                 
                 appreciation_gain = V_t - i.price
-                principal_built_component = self.mortgage_amount - rb  # This is the principal built (mortgage - remaining balance)
-                interest_drag_component = -cumul_interest  # negative (cost)
-                opportunity_cost_dp_component = -baseline_liquid  # negative (foregone investment)
-                rent_avoided_net_component = cumul_rent - cumul_owner_cost  # positive (rent avoided)
-                closing_costs_component = -closing_costs  # negative (upfront cost)
+                principal_built_component = self.mortgage_amount - rb  # Principal paid down
+                down_payment_component = i.down_payment  # Positive: down payment contribution to equity
+                opportunity_cost_dp_component = -baseline_liquid  # Negative: foregone investment returns
+                rent_avoided_net_component = cashflow_gap  # Rent avoided minus owner costs (excluding closing costs)
+                closing_costs_component = -closing_costs if y > 0 else 0  # Negative: upfront costs (only after year 0)
                 
                 # Verify component reconciliation
-                component_sum = (appreciation_gain + principal_built_component + 
-                               interest_drag_component + opportunity_cost_dp_component + 
-                               rent_avoided_net_component + closing_costs_component)
+                component_sum = (appreciation_gain + principal_built_component + down_payment_component + 
+                               opportunity_cost_dp_component + rent_avoided_net_component + closing_costs_component)
                 
-                # Note: Component reconciliation is complex due to the interaction between
-                # equity (which includes down payment) and opportunity cost of down payment.
-                # The components provide a breakdown for waterfall analysis but may not
-                # sum exactly to net_advantage due to these interactions.
+                # Components should now sum exactly to net_advantage
+                assert abs(component_sum - net_advantage) < 1e-6, f"Component reconciliation failed: {component_sum} != {net_advantage}"
 
                 out.append(PureBaselinePoint(
                     year=y,
@@ -611,7 +619,7 @@ class BuyVsRentAnalyzer:
                     components={
                         "appreciation_gain": appreciation_gain,
                         "principal_built": principal_built_component,
-                        "interest_drag": interest_drag_component,
+                        "down_payment": down_payment_component,
                         "opportunity_cost_dp": opportunity_cost_dp_component,
                         "rent_avoided_net": rent_avoided_net_component,
                         "closing_costs": closing_costs_component,
