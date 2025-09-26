@@ -24,12 +24,12 @@ export function NumericInput({
   step,
   ...textFieldProps 
 }: NumericInputProps) {
-  const [local, setLocal] = useState<number>(value);
+  const [local, setLocal] = useState<number>(value || 0);
   const focusedRef = useRef(false);
 
   // sync from parent only when NOT editing; prevents snap-back
   useEffect(() => {
-    if (!focusedRef.current) setLocal(value);
+    if (!focusedRef.current) setLocal(value || 0);
   }, [value]);
 
   // Determine default step and dp based on kind
@@ -40,8 +40,8 @@ export function NumericInput({
 
   // For percent inputs, we need to convert between fraction (internal) and percentage (display)
   const displayValue = kind === "percent" ? 
-    new Decimal(local).times(100).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber() : 
-    local;
+    new Decimal(local || 0).times(100).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber() : 
+    (local || 0);
   const handleChange = (newDisplayValue: number) => {
     const newValue = kind === "percent" ? newDisplayValue / 100 : newDisplayValue;
     setLocal(newValue);
@@ -85,7 +85,7 @@ export function NumericInput({
       }}
       onBlur={() => {
         focusedRef.current = false;
-        const rounded = new Decimal(local).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber();
+        const rounded = new Decimal(local || 0).toDecimalPlaces(finalDp, Decimal.ROUND_HALF_UP).toNumber();
         setLocal(rounded);
         onChange(rounded); // commit rounded value
       }}
