@@ -19,6 +19,7 @@ import { Refresh } from '@mui/icons-material';
 import { BuyVsRentInputs } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
 import { getDefaultBuyVsRentInputs, getDefaultBuyVsRentInputsSync } from '../utils/config';
+import { NumericInput } from './NumericInput';
 
 interface BuyVsRentFormProps {
   onInputsChange: (inputs: BuyVsRentInputs) => void;
@@ -84,9 +85,6 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
     }).format(value);
   };
 
-  const formatPercentage = (value: number) => {
-    return `${(value * 100).toFixed(2)}%`;
-  };
 
   return (
     <Box>
@@ -139,7 +137,7 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             InputProps={{
               endAdornment: '%',
             }}
-            helperText={formatPercentage(inputs.fees_pct)}
+            helperText={`${(inputs.fees_pct * 100).toFixed(2)}%`}
           />
         </Grid>
       </Grid>
@@ -161,21 +159,19 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
             InputProps={{
               endAdornment: '%',
             }}
-            helperText={formatPercentage(inputs.annual_rate)}
+            helperText={`${(inputs.annual_rate * 100).toFixed(2)}%`}
           />
         </Grid>
         
         <Grid item xs={6}>
-          <TextField
+          <NumericInput
             fullWidth
             label="Amortization Rate"
-            type="number"
-            value={inputs.amortization_rate * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('amortization_rate', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText={`${(inputs.amortization_rate * 100).toFixed(2)}% per year`}
+            kind="percent"
+            value={inputs.amortization_rate}
+            onChange={(value) => handleInputChange('amortization_rate', value)}
+            dp={2}
+            helperText="per year"
           />
         </Grid>
       </Grid>
@@ -238,16 +234,13 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
         </Grid>
         
         <Grid item xs={12}>
-          <TextField
+          <NumericInput
             fullWidth
             label="Maintenance (Annual %)"
-            type="number"
-            value={inputs.maintenance_pct_annual * 100}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('maintenance_pct_annual', (parseFloat(e.target.value) || 0) / 100)}
-            InputProps={{
-              endAdornment: '%',
-            }}
-            helperText={formatPercentage(inputs.maintenance_pct_annual)}
+            kind="percent"
+            value={inputs.maintenance_pct_annual}
+            onChange={(value) => handleInputChange('maintenance_pct_annual', value)}
+            dp={2}
           />
         </Grid>
       </Grid>
@@ -294,41 +287,35 @@ const BuyVsRentForm: React.FC<BuyVsRentFormProps> = ({ onInputsChange, loading }
 
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <NumericInput
                 fullWidth
                 label="House Appreciation Rate"
-                type="number"
-                value={inputs.house_appreciation_rate * 100}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('house_appreciation_rate', (parseFloat(e.target.value) || 0) / 100)}
-                InputProps={{
-                  endAdornment: '%',
-                }}
+                kind="percent"
+                value={inputs.house_appreciation_rate}
+                onChange={(value) => handleInputChange('house_appreciation_rate', value)}
+                dp={1}
                 helperText="Annual house value appreciation (e.g., 2% per year)"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <NumericInput
                 fullWidth
                 label="Investment Return Rate"
-                type="number"
-                value={inputs.investment_return_rate * 100}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('investment_return_rate', (parseFloat(e.target.value) || 0) / 100)}
-                InputProps={{
-                  endAdornment: '%',
-                }}
+                kind="percent"
+                value={inputs.investment_return_rate}
+                onChange={(value) => handleInputChange('investment_return_rate', value)}
+                dp={1}
                 helperText="Annual return if down payment was invested (e.g., 7% per year)"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
+              <NumericInput
                 fullWidth
                 label="Rent Inflation Rate"
-                type="number"
-                value={inputs.rent_inflation_rate * 100}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('rent_inflation_rate', (parseFloat(e.target.value) || 0) / 100)}
-                InputProps={{
-                  endAdornment: '%',
-                }}
+                kind="percent"
+                value={inputs.rent_inflation_rate}
+                onChange={(value) => handleInputChange('rent_inflation_rate', value)}
+                dp={1}
                 helperText="Annual rent inflation rate (e.g., 2% per year)"
               />
             </Grid>
