@@ -17,6 +17,7 @@ import BuyVsRentSummary from '../components/BuyVsRentSummary';
 import BuyVsRentWaterfall from '../components/BuyVsRentWaterfall';
 import { useBuyVsRentAnalysis } from '../hooks/useBuyVsRentAnalysis';
 import { BuyVsRentInputs } from '../types/buyVsRent';
+import { buyVsRentApi } from '../utils/api';
 
 const BuyVsRentPage: React.FC = () => {
   const [inputs, setInputs] = useState<BuyVsRentInputs | null>(null);
@@ -60,35 +61,11 @@ const BuyVsRentPage: React.FC = () => {
     
     // Fetch additional API endpoints for complete export
     const [cashFlowData, houseValueData, investmentValueData, wealthComparisonData, pureRenterBaselineData] = await Promise.all([
-      fetch('/api/buy-vs-rent/cash-flow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputs)
-      }).then(res => res.json()).catch(() => null),
-      
-      fetch('/api/buy-vs-rent/house-value-over-time', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputs)
-      }).then(res => res.json()).catch(() => null),
-      
-      fetch('/api/buy-vs-rent/investment-value-over-time', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputs)
-      }).then(res => res.json()).catch(() => null),
-      
-      fetch('/api/buy-vs-rent/wealth-comparison-over-time', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputs)
-      }).then(res => res.json()).catch(() => null),
-      
-      fetch('/api/buy-vs-rent/pure-renter-baseline-over-time', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputs)
-      }).then(res => res.json()).catch(() => null)
+      buyVsRentApi.cashFlow(inputs, 60).catch(() => null),
+      buyVsRentApi.getHouseValueOverTime(inputs, 30).catch(() => null),
+      buyVsRentApi.getInvestmentValueOverTime(inputs, 30).catch(() => null),
+      buyVsRentApi.getWealthComparisonOverTime(inputs, 30).catch(() => null),
+      buyVsRentApi.getPureRenterBaselineOverTime(inputs, 30).catch(() => null)
     ]);
     
     const exportData = {
