@@ -1,29 +1,121 @@
+"""
+Buy vs Rent Analysis Core Logic
+
+This module contains the core business logic for comprehensive buy vs rent analysis.
+It implements sophisticated financial calculations including mortgage amortization,
+wealth comparison, pure renter baseline analysis, and sensitivity analysis.
+
+The analyzer provides multiple analysis approaches:
+- Traditional buy vs rent comparison
+- Wealth accumulation over time with house appreciation and investment returns
+- Pure renter baseline analysis (rate-independent comparison)
+- Sensitivity analysis across different market conditions
+
+Key Features:
+- Amortization rate-based loan term calculation
+- Monthly mortgage payment calculations
+- Break-even analysis with loan payoff consideration
+- House value appreciation modeling
+- Investment return calculations
+- Component breakdown for waterfall analysis
+
+Author: BrickFi-Lab
+"""
+
 from typing import Optional, List, Dict
 from app.models.buy_vs_rent import BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, PureBaselinePoint
 
 
 class BuyVsRentAnalyzer:
-    """Compute core buy-vs-rent metrics with clear economics and minimal assumptions."""
+    """
+    Core analyzer for buy vs rent financial analysis.
+    
+    This class performs comprehensive financial analysis comparing the costs and benefits
+    of buying versus renting a property. It includes sophisticated calculations for
+    mortgage amortization, wealth accumulation, and various comparison methodologies.
+    
+    The analyzer supports multiple analysis modes:
+    - Traditional cost comparison
+    - Wealth accumulation over time
+    - Pure renter baseline analysis (rate-independent)
+    - Sensitivity analysis across market conditions
+    
+    Mathematical Foundations:
+    - Mortgage payments calculated using standard amortization formulas
+    - House value appreciation using compound growth
+    - Investment returns using future value calculations
+    - Break-even analysis considering loan payoff scenarios
+    
+    Attributes:
+        i (BuyVsRentInputs): Input parameters for the analysis
+        mortgage_amount (float): Loan amount after down payment
+        term_years (float): Loan term calculated from amortization rate
+    
+    Example:
+        >>> inputs = BuyVsRentInputs(price=500000, down_payment=100000, ...)
+        >>> analyzer = BuyVsRentAnalyzer(inputs)
+        >>> summary = analyzer.summary()
+        >>> print(f"Monthly payment: €{summary.monthly_PI:.2f}")
+    """
 
     def __init__(self, inputs: BuyVsRentInputs):
+        """
+        Initialize the buy vs rent analyzer.
+        
+        Args:
+            inputs (BuyVsRentInputs): Input parameters for the analysis
+            
+        Raises:
+            ValueError: If down payment exceeds property price
+        """
         self.i = inputs
         self._validate()
 
     def _validate(self) -> None:
+        """
+        Validate input parameters for logical consistency.
+        
+        Raises:
+            ValueError: If validation fails
+        """
         if self.i.down_payment > self.i.price:
             raise ValueError("Down payment cannot exceed property price")
 
     @property
     def mortgage_amount(self) -> float:
-        """Loan amount M = P - D."""
+        """
+        Calculate the mortgage loan amount.
+        
+        Formula: M = P - D
+        Where:
+        - M = Mortgage amount
+        - P = Property price
+        - D = Down payment
+        
+        Returns:
+            float: Loan amount in euros
+        """
         return self.i.price - self.i.down_payment
 
     @property
     def term_years(self) -> float:
-        """Calculate loan term in years from amortization rate."""
-        # The amortization rate represents the percentage of the loan balance that gets paid down each year
-        # For example: 2% yearly = 50 years, 4% yearly = 25 years, 10% yearly = 10 years
-        # Formula: loan_term_years = 1 / amortization_rate
+        """
+        Calculate loan term in years from amortization rate.
+        
+        The amortization rate represents the percentage of the loan balance
+        that gets paid down each year. This is converted to loan term using
+        the inverse relationship.
+        
+        Examples:
+        - 2% yearly amortization = 50 years loan term
+        - 4% yearly amortization = 25 years loan term  
+        - 10% yearly amortization = 10 years loan term
+        
+        Formula: loan_term_years = 1 / amortization_rate
+        
+        Returns:
+            float: Loan term in years (defaults to 30 if invalid rate)
+        """
         if self.i.amortization_rate <= 0:
             return 30.0  # Default fallback
         
@@ -31,7 +123,27 @@ class BuyVsRentAnalyzer:
 
     @staticmethod
     def _pmt(principal: float, annual_rate: float, years: float) -> float:
-        """Amortizing monthly payment (principal + interest)."""
+        """
+        Calculate amortizing monthly payment (principal + interest).
+        
+        Uses the standard mortgage payment formula for a fully amortizing loan.
+        This calculates the fixed monthly payment that pays off both principal
+        and interest over the loan term.
+        
+        Formula: PMT = P * [r(1+r)^n] / [(1+r)^n - 1]
+        Where:
+        - P = Principal loan amount
+        - r = Monthly interest rate (annual_rate / 12)
+        - n = Total number of payments (years * 12)
+        
+        Args:
+            principal (float): Loan principal amount
+            annual_rate (float): Annual interest rate (as decimal, e.g., 0.05 for 5%)
+            years (float): Loan term in years
+            
+        Returns:
+            float: Monthly payment amount in euros
+        """
         r_m = annual_rate / 12.0
         n = 12 * years
         if r_m == 0:
@@ -40,7 +152,27 @@ class BuyVsRentAnalyzer:
 
     @staticmethod
     def _fv_lump_sum(pv: float, annual_rate: float, years: float) -> float:
-        """Future value of a lump sum, compounded annually (used at yearly checkpoints)."""
+        """
+        Calculate future value of a lump sum with compound interest.
+        
+        This is used for calculating the future value of the down payment
+        when invested at the specified annual return rate.
+        
+        Formula: FV = PV * (1 + r)^t
+        Where:
+        - FV = Future value
+        - PV = Present value (lump sum)
+        - r = Annual interest rate
+        - t = Time in years
+        
+        Args:
+            pv (float): Present value (lump sum amount)
+            annual_rate (float): Annual interest rate (as decimal)
+            years (float): Time period in years
+            
+        Returns:
+            float: Future value of the lump sum
+        """
         return pv * ((1 + annual_rate) ** years)
 
     def monthly_payment(self) -> float:

@@ -1,3 +1,31 @@
+/**
+ * Custom React hook for buy vs rent analysis.
+ * 
+ * This hook provides state management and API integration for comprehensive
+ * buy vs rent analysis, including core analysis, sensitivity analysis,
+ * and pure baseline analysis.
+ * 
+ * @returns {Object} Hook return object containing:
+ *   - analysis: Core analysis results
+ *   - sensitivity: Sensitivity analysis results
+ *   - pureBaseline: Pure baseline analysis results
+ *   - netAdvantage: Net advantage over time results
+ *   - loading: Loading state
+ *   - error: Error state
+ *   - analyze: Function to run core analysis
+ *   - runSensitivity: Function to run sensitivity analysis
+ *   - runPureBaseline: Function to run pure baseline analysis
+ *   - runNetAdvantage: Function to run net advantage analysis
+ * 
+ * @example
+ * ```tsx
+ * const { analysis, loading, analyze } = useBuyVsRentAnalysis();
+ * 
+ * useEffect(() => {
+ *   analyze(inputs);
+ * }, [inputs]);
+ * ```
+ */
 import { useState } from 'react';
 import { BuyVsRentInputs, BuyVsRentSummary, SensitivityResult, PureBaselinePoint } from '../types/buyVsRent';
 import { buyVsRentApi } from '../utils/api';
@@ -10,6 +38,12 @@ export const useBuyVsRentAnalysis = () => {
   const [pureBaseline, setPureBaseline] = useState<PureBaselinePoint[] | null>(null);
   const [netAdvantage, setNetAdvantage] = useState<any[] | null>(null);
 
+  /**
+   * Run core buy vs rent analysis.
+   * 
+   * @param {BuyVsRentInputs} inputs - Analysis input parameters
+   * @returns {Promise<void>} Promise that resolves when analysis is complete
+   */
   const analyze = async (inputs: BuyVsRentInputs) => {
     setLoading(true);
     setError(null);
