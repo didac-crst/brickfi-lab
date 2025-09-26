@@ -59,7 +59,7 @@ const BuyVsRentPage: React.FC = () => {
     
     const exportData = {
       analysis_type: "Buy vs Rent Property Analysis",
-      description: "Complete analysis comparing the costs of buying versus renting a property, including sensitivity analysis across different interest rates and rental prices.",
+      description: "Complete analysis comparing the costs of buying versus renting a property, including comprehensive data from all API endpoints with detailed explanations.",
       timestamp: new Date().toISOString(),
       inputs: {
         description: "User input parameters for the property analysis",
@@ -88,19 +88,39 @@ const BuyVsRentPage: React.FC = () => {
           maintenance_description: "Annual maintenance costs as percentage of property price",
           renter_insurance_monthly: inputs.renter_insurance_monthly,
           renter_insurance_description: "Optional renter insurance monthly cost in euros"
+        },
+        investment_parameters: {
+          house_appreciation_rate: inputs.house_appreciation_rate,
+          house_appreciation_rate_description: "Annual house value appreciation rate (e.g., 0.02 for 2% per year)",
+          investment_return_rate: inputs.investment_return_rate,
+          investment_return_rate_description: "Annual investment return rate for down payment (e.g., 0.07 for 7% per year)"
+        },
+        analysis_options: {
+          baseline_mode: inputs.baseline_mode,
+          baseline_mode_description: "Comparison mode: 'pure_renter' (DP compounded independently) or 'budget_matched' (legacy approach)",
+          sell_on_horizon: inputs.sell_on_horizon,
+          sell_on_horizon_description: "Whether to sell the house at the evaluation horizon (30 years)"
         }
       },
       results: {
         description: "Analysis results comparing ownership vs rental costs",
+        endpoint: "POST /api/buy-vs-rent/analyze",
+        purpose: "Core financial analysis providing key metrics for buy vs rent decision",
         mortgage_details: {
           mortgage_amount: analysis.mortgage_amount,
           mortgage_amount_description: "Total loan amount after down payment in euros",
           monthly_PI: analysis.monthly_PI,
-          monthly_PI_description: "Monthly principal and interest payment in euros"
+          monthly_PI_description: "Monthly principal and interest payment in euros",
+          total_interest_paid: analysis.total_interest_paid,
+          total_interest_paid_description: "Total interest paid over the entire loan term",
+          calculated_loan_term_years: analysis.calculated_loan_term_years,
+          calculated_loan_term_description: "Loan term calculated from amortization rate (1/amortization_rate)",
+          yearly_amortization_rate: analysis.yearly_amortization_rate,
+          yearly_amortization_rate_description: "Yearly amortization rate used for calculations"
         },
         cost_comparison: {
           owner_cost_month1: analysis.owner_cost_month1,
-          owner_cost_description: "Total monthly cost of ownership (excluding principal) in first month",
+          owner_cost_description: "Total monthly cost of ownership (excluding principal) in first month - includes interest, taxes, insurance, maintenance",
           monthly_rent_total: analysis.monthly_rent_total,
           rent_cost_description: "Total monthly rental cost including insurance",
           owner_vs_rent_monthly: analysis.owner_vs_rent_monthly,
@@ -111,18 +131,170 @@ const BuyVsRentPage: React.FC = () => {
           annual_saving_description: "Annual savings compared to renting (negative means renting is cheaper)",
           break_even_years: analysis.break_even_years,
           break_even_description: "Years until ownership becomes financially advantageous (considering equity building)"
+        },
+        wealth_comparison_metrics: {
+          house_wealth_10_years: analysis.house_wealth_10_years,
+          house_wealth_10_description: "Total house wealth (value - remaining mortgage) after 10 years",
+          investment_wealth_10_years: analysis.investment_wealth_10_years,
+          investment_wealth_10_description: "Total investment wealth (rent+invest strategy) after 10 years",
+          house_wealth_20_years: analysis.house_wealth_20_years,
+          house_wealth_20_description: "Total house wealth (value - remaining mortgage) after 20 years",
+          investment_wealth_20_years: analysis.investment_wealth_20_years,
+          investment_wealth_20_description: "Total investment wealth (rent+invest strategy) after 20 years",
+          house_wealth_30_years: analysis.house_wealth_30_years,
+          house_wealth_30_description: "Total house wealth (value - remaining mortgage) after 30 years",
+          investment_wealth_30_years: analysis.investment_wealth_30_years,
+          investment_wealth_30_description: "Total investment wealth (rent+invest strategy) after 30 years",
+          wealth_crossover_year: analysis.wealth_crossover_year,
+          wealth_crossover_description: "Year when investment strategy overtakes house wealth (null if never)"
+        },
+        pure_baseline_metrics: {
+          baseline_liquid_30_years: analysis.baseline_liquid_30_years,
+          baseline_liquid_30_description: "Pure renter baseline wealth (down payment compounded) after 30 years",
+          net_advantage_30_years: analysis.net_advantage_30_years,
+          net_advantage_30_description: "Net advantage of buying vs pure renter baseline after 30 years",
+          cashflow_gap_30_years: analysis.cashflow_gap_30_years,
+          cashflow_gap_30_description: "Cumulative cashflow gap (rent - owner costs) after 30 years"
         }
       },
       sensitivity_analysis: sensitivity ? {
         description: "Sensitivity analysis showing how results vary with different interest rates and rental prices",
-        scenarios: sensitivity.map(result => ({
+        endpoint: "POST /api/buy-vs-rent/sensitivity",
+        purpose: "Tests robustness of buy vs rent decision under different market conditions",
+        scenarios: sensitivity.map((result: any) => ({
           interest_rate: result.rate,
+          interest_rate_description: "Mortgage interest rate tested in this scenario",
           rental_price: result.rent,
+          rental_price_description: "Monthly rent tested in this scenario",
           owner_cost_m1: result.owner_cost_m1,
+          owner_cost_description: "Monthly ownership cost (excluding principal) in first month",
           annual_saving: result.annual_saving,
+          annual_saving_description: "Annual savings vs renting (negative means renting is cheaper)",
           break_even_years: result.break_even_years,
+          break_even_description: "Years until ownership becomes advantageous",
           scenario_description: `Scenario with ${(result.rate * 100).toFixed(2)}% interest rate and €${result.rent}/month rent`
         }))
+      } : null,
+      pure_baseline_analysis: pureBaseline && pureBaseline.length > 0 ? {
+        description: "Pure renter baseline analysis - rate-independent comparison with component breakdown",
+        endpoint: "POST /api/buy-vs-rent/pure-baseline-wealth",
+        purpose: "Most comprehensive analysis implementing pure renter baseline specification with waterfall-friendly component breakdown",
+        baseline_mode: inputs.baseline_mode,
+        baseline_independence: "Pure renter baseline is completely independent of mortgage interest rates - down payment compounded at investment rate, rent treated as consumption",
+        key_milestones: {
+          year_5: pureBaseline.find((p: any) => p.year === 5) ? {
+            year: 5,
+            net_advantage: pureBaseline.find((p: any) => p.year === 5)?.net_advantage,
+            net_advantage_description: "Net advantage of buying vs pure renter baseline (positive = buying better)",
+            baseline_liquid: pureBaseline.find((p: any) => p.year === 5)?.baseline_liquid,
+            baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+            net_equity: pureBaseline.find((p: any) => p.year === 5)?.net_equity,
+            net_equity_description: "Owner equity (house value - remaining mortgage balance)",
+            cashflow_gap: pureBaseline.find((p: any) => p.year === 5)?.cashflow_gap,
+            cashflow_gap_description: "Cumulative rent paid - cumulative owner costs",
+            components: pureBaseline.find((p: any) => p.year === 5)?.components ? {
+              appreciation_gain: pureBaseline.find((p: any) => p.year === 5)?.components.appreciation_gain,
+              appreciation_gain_description: "House value growth over time (positive component)",
+              principal_built: pureBaseline.find((p: any) => p.year === 5)?.components.principal_built,
+              principal_built_description: "Equity accumulated through mortgage payments (positive component)",
+              interest_drag: pureBaseline.find((p: any) => p.year === 5)?.components.interest_drag,
+              interest_drag_description: "Total interest paid (negative component - cost of borrowing)",
+              opportunity_cost_dp: pureBaseline.find((p: any) => p.year === 5)?.components.opportunity_cost_dp,
+              opportunity_cost_dp_description: "Foregone investment returns on down payment (negative component)",
+              rent_avoided_net: pureBaseline.find((p: any) => p.year === 5)?.components.rent_avoided_net,
+              rent_avoided_net_description: "Net benefit from not paying rent (positive after loan payoff)",
+              closing_costs: pureBaseline.find((p: any) => p.year === 5)?.components.closing_costs,
+              closing_costs_description: "Upfront purchase costs (negative component)"
+            } : null
+          } : null,
+          year_10: pureBaseline.find((p: any) => p.year === 10) ? {
+            year: 10,
+            net_advantage: pureBaseline.find((p: any) => p.year === 10)?.net_advantage,
+            net_advantage_description: "Net advantage of buying vs pure renter baseline (positive = buying better)",
+            baseline_liquid: pureBaseline.find((p: any) => p.year === 10)?.baseline_liquid,
+            baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+            net_equity: pureBaseline.find((p: any) => p.year === 10)?.net_equity,
+            net_equity_description: "Owner equity (house value - remaining mortgage balance)",
+            cashflow_gap: pureBaseline.find((p: any) => p.year === 10)?.cashflow_gap,
+            cashflow_gap_description: "Cumulative rent paid - cumulative owner costs",
+            components: pureBaseline.find((p: any) => p.year === 10)?.components ? {
+              appreciation_gain: pureBaseline.find((p: any) => p.year === 10)?.components.appreciation_gain,
+              appreciation_gain_description: "House value growth over time (positive component)",
+              principal_built: pureBaseline.find((p: any) => p.year === 10)?.components.principal_built,
+              principal_built_description: "Equity accumulated through mortgage payments (positive component)",
+              interest_drag: pureBaseline.find((p: any) => p.year === 10)?.components.interest_drag,
+              interest_drag_description: "Total interest paid (negative component - cost of borrowing)",
+              opportunity_cost_dp: pureBaseline.find((p: any) => p.year === 10)?.components.opportunity_cost_dp,
+              opportunity_cost_dp_description: "Foregone investment returns on down payment (negative component)",
+              rent_avoided_net: pureBaseline.find((p: any) => p.year === 10)?.components.rent_avoided_net,
+              rent_avoided_net_description: "Net benefit from not paying rent (positive after loan payoff)",
+              closing_costs: pureBaseline.find((p: any) => p.year === 10)?.components.closing_costs,
+              closing_costs_description: "Upfront purchase costs (negative component)"
+            } : null
+          } : null,
+          year_20: pureBaseline.find((p: any) => p.year === 20) ? {
+            year: 20,
+            net_advantage: pureBaseline.find((p: any) => p.year === 20)?.net_advantage,
+            net_advantage_description: "Net advantage of buying vs pure renter baseline (positive = buying better)",
+            baseline_liquid: pureBaseline.find((p: any) => p.year === 20)?.baseline_liquid,
+            baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+            net_equity: pureBaseline.find((p: any) => p.year === 20)?.net_equity,
+            net_equity_description: "Owner equity (house value - remaining mortgage balance)",
+            cashflow_gap: pureBaseline.find((p: any) => p.year === 20)?.cashflow_gap,
+            cashflow_gap_description: "Cumulative rent paid - cumulative owner costs",
+            components: pureBaseline.find((p: any) => p.year === 20)?.components ? {
+              appreciation_gain: pureBaseline.find((p: any) => p.year === 20)?.components.appreciation_gain,
+              appreciation_gain_description: "House value growth over time (positive component)",
+              principal_built: pureBaseline.find((p: any) => p.year === 20)?.components.principal_built,
+              principal_built_description: "Equity accumulated through mortgage payments (positive component)",
+              interest_drag: pureBaseline.find((p: any) => p.year === 20)?.components.interest_drag,
+              interest_drag_description: "Total interest paid (negative component - cost of borrowing)",
+              opportunity_cost_dp: pureBaseline.find((p: any) => p.year === 20)?.components.opportunity_cost_dp,
+              opportunity_cost_dp_description: "Foregone investment returns on down payment (negative component)",
+              rent_avoided_net: pureBaseline.find((p: any) => p.year === 20)?.components.rent_avoided_net,
+              rent_avoided_net_description: "Net benefit from not paying rent (positive after loan payoff)",
+              closing_costs: pureBaseline.find((p: any) => p.year === 20)?.components.closing_costs,
+              closing_costs_description: "Upfront purchase costs (negative component)"
+            } : null
+          } : null,
+          year_30: pureBaseline.find((p: any) => p.year === 30) ? {
+            year: 30,
+            net_advantage: pureBaseline.find((p: any) => p.year === 30)?.net_advantage,
+            net_advantage_description: "Net advantage of buying vs pure renter baseline (positive = buying better)",
+            baseline_liquid: pureBaseline.find((p: any) => p.year === 30)?.baseline_liquid,
+            baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+            net_equity: pureBaseline.find((p: any) => p.year === 30)?.net_equity,
+            net_equity_description: "Owner equity (house value - remaining mortgage balance)",
+            cashflow_gap: pureBaseline.find((p: any) => p.year === 30)?.cashflow_gap,
+            cashflow_gap_description: "Cumulative rent paid - cumulative owner costs",
+            components: pureBaseline.find((p: any) => p.year === 30)?.components ? {
+              appreciation_gain: pureBaseline.find((p: any) => p.year === 30)?.components.appreciation_gain,
+              appreciation_gain_description: "House value growth over time (positive component)",
+              principal_built: pureBaseline.find((p: any) => p.year === 30)?.components.principal_built,
+              principal_built_description: "Equity accumulated through mortgage payments (positive component)",
+              interest_drag: pureBaseline.find((p: any) => p.year === 30)?.components.interest_drag,
+              interest_drag_description: "Total interest paid (negative component - cost of borrowing)",
+              opportunity_cost_dp: pureBaseline.find((p: any) => p.year === 30)?.components.opportunity_cost_dp,
+              opportunity_cost_dp_description: "Foregone investment returns on down payment (negative component)",
+              rent_avoided_net: pureBaseline.find((p: any) => p.year === 30)?.components.rent_avoided_net,
+              rent_avoided_net_description: "Net benefit from not paying rent (positive after loan payoff)",
+              closing_costs: pureBaseline.find((p: any) => p.year === 30)?.components.closing_costs,
+              closing_costs_description: "Upfront purchase costs (negative component)"
+            } : null
+          } : null
+        },
+        interpretation: {
+          net_advantage_meaning: "Positive values indicate buying is better than pure renter baseline",
+          baseline_independence: "Pure renter baseline is completely independent of mortgage interest rates",
+          component_breakdown: {
+            appreciation_gain: "House value growth over time - leverage on property appreciation",
+            principal_built: "Equity accumulated through mortgage payments - forced savings",
+            interest_drag: "Total interest paid - cost of borrowing money",
+            opportunity_cost_dp: "Foregone investment returns on down payment - what the down payment could have earned",
+            rent_avoided_net: "Net benefit from not paying rent - becomes strongly positive after loan payoff",
+            closing_costs: "Upfront purchase costs - one-time expense"
+          }
+        }
       } : null,
       interpretation: {
         summary: analysis.annual_saving_vs_rent >= 0 
