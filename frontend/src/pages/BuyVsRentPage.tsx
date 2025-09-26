@@ -20,12 +20,13 @@ import { BuyVsRentInputs } from '../types/buyVsRent';
 
 const BuyVsRentPage: React.FC = () => {
   const [inputs, setInputs] = useState<BuyVsRentInputs | null>(null);
-  const { analysis, sensitivity, pureBaseline, loading, error, analyze, runSensitivity, runPureBaseline } = useBuyVsRentAnalysis();
+  const { analysis, sensitivity, pureBaseline, netAdvantage, loading, error, analyze, runSensitivity, runPureBaseline, runNetAdvantage } = useBuyVsRentAnalysis();
 
   const handleInputsChange = (newInputs: BuyVsRentInputs) => {
     setInputs(newInputs);
     analyze(newInputs);
     runPureBaseline(newInputs, 30, false, 0.05);
+    runNetAdvantage(newInputs, 30);
   };
 
   const handleSensitivityAnalysis = () => {
@@ -294,6 +295,46 @@ const BuyVsRentPage: React.FC = () => {
             rent_avoided_net: "Net benefit from not paying rent - becomes strongly positive after loan payoff",
             closing_costs: "Upfront purchase costs - one-time expense"
           }
+        }
+      } : null,
+      net_advantage_over_time: netAdvantage && netAdvantage.length > 0 ? {
+        description: "Net advantage over time analysis - shows how the advantage of buying vs pure renter baseline evolves",
+        endpoint: "POST /api/buy-vs-rent/net-advantage-over-time",
+        purpose: "Tracks the net advantage of buying over time with component breakdown",
+        data_points: netAdvantage.map((point: any) => ({
+          year: point.year,
+          year_description: "Year in the analysis timeline",
+          net_advantage: point.net_advantage,
+          net_advantage_description: "Net advantage of buying vs pure renter baseline (positive = buying better)",
+          baseline_liquid: point.baseline_liquid,
+          baseline_liquid_description: "Pure renter wealth (down payment compounded at investment rate)",
+          net_equity: point.net_equity,
+          net_equity_description: "Owner equity (house value - remaining mortgage balance)",
+          cashflow_gap: point.cashflow_gap,
+          cashflow_gap_description: "Cumulative cashflow gap (rent - owner costs)",
+          components: point.components ? {
+            appreciation_gain: point.components.appreciation_gain,
+            appreciation_gain_description: "House value growth over time (positive component)",
+            principal_built: point.components.principal_built,
+            principal_built_description: "Equity accumulated through mortgage payments (positive component)",
+            interest_drag: point.components.interest_drag,
+            interest_drag_description: "Total interest paid (negative component - cost of borrowing)",
+            opportunity_cost_dp: point.components.opportunity_cost_dp,
+            opportunity_cost_dp_description: "Foregone investment returns on down payment (negative component)",
+            rent_avoided_net: point.components.rent_avoided_net,
+            rent_avoided_net_description: "Net benefit from not paying rent (positive after loan payoff)",
+            closing_costs: point.components.closing_costs,
+            closing_costs_description: "Upfront purchase costs (negative component)"
+          } : null
+        })),
+        interpretation: {
+          net_advantage_evolution: "Shows how the advantage of buying evolves over time",
+          key_insights: [
+            "Early years: Often negative due to high interest costs and opportunity cost of down payment",
+            "Mid-term: May become positive as equity builds and rent costs accumulate",
+            "Long-term: Typically positive due to rent avoidance and house appreciation",
+            "Component breakdown shows which factors drive the net advantage"
+          ]
         }
       } : null,
       interpretation: {

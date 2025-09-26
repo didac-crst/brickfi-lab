@@ -8,6 +8,7 @@ export const useBuyVsRentAnalysis = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pureBaseline, setPureBaseline] = useState<PureBaselinePoint[] | null>(null);
+  const [netAdvantage, setNetAdvantage] = useState<any[] | null>(null);
 
   const analyze = async (inputs: BuyVsRentInputs) => {
     setLoading(true);
@@ -70,6 +71,7 @@ export const useBuyVsRentAnalysis = () => {
     analysis,
     sensitivity,
     pureBaseline,
+    netAdvantage,
     loading,
     error,
     analyze,
@@ -80,6 +82,14 @@ export const useBuyVsRentAnalysis = () => {
         setPureBaseline(data);
       } catch (e: any) {
         setError(e?.message || 'Failed to compute pure baseline wealth');
+      }
+    },
+    runNetAdvantage: async (inputs: BuyVsRentInputs, years = 30) => {
+      try {
+        const data = await buyVsRentApi.getNetAdvantageOverTime(inputs, years);
+        setNetAdvantage(data);
+      } catch (e: any) {
+        setError(e?.message || 'Failed to compute net advantage over time');
       }
     },
   };
