@@ -227,8 +227,8 @@ class BuyVsRentAnalyzer:
         
         return total_annual_savings
 
-    def break_even_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
-        """Break-even horizon (years) accounting for loan payoff and reduced costs."""
+    def cash_payback_years(self, sell_cost_pct: float = 0.05) -> Optional[float]:
+        """Cash payback horizon (years) - when cumulative cash savings recover upfront costs."""
         # Calculate total upfront costs
         upfront_costs = self.i.down_payment + (self.i.fees_pct * self.i.price)
         
@@ -263,6 +263,16 @@ class BuyVsRentAnalyzer:
             
             if cumulative_savings >= upfront_costs:
                 return year
+        
+        return None  # Never breaks even
+
+    def wealth_breakeven_year(self) -> Optional[int]:
+        """Wealth breakeven year - when net advantage becomes positive."""
+        pure_baseline_data = self.pure_baseline_vs_buy_over_time(years=30)
+        
+        for point in pure_baseline_data:
+            if point.net_advantage >= 0:
+                return point.year
         
         return None  # Never breaks even
 
@@ -306,7 +316,8 @@ class BuyVsRentAnalyzer:
             total_interest_paid=self.total_interest_paid(),
             owner_cost_month1=owner_cost_month1,
             annual_saving_vs_rent=self.annual_saving_vs_rent(),
-            break_even_years=self.break_even_years(sell_cost_pct),
+            cash_payback_years=self.cash_payback_years(sell_cost_pct),
+            wealth_breakeven_year=self.wealth_breakeven_year(),
             monthly_rent_total=monthly_rent_total,
             owner_vs_rent_monthly=owner_cost_month1 - monthly_rent_total,  # positive = ownership costs more
             calculated_loan_term_years=self.term_years,
@@ -359,7 +370,7 @@ class BuyVsRentAnalyzer:
                     rent=rent,
                     owner_cost_m1=temp_analyzer.owner_monthly_cost_year1(),
                     annual_saving=temp_analyzer.annual_saving_vs_rent(),
-                    break_even_years=temp_analyzer.break_even_years(sell_cost_pct)
+                    cash_payback_years=temp_analyzer.cash_payback_years(sell_cost_pct)
                 ))
         
         return results
@@ -573,11 +584,8 @@ class BuyVsRentAnalyzer:
                 # Net advantage calculation
                 # net_advantage = net_equity - baseline_liquid + cashflow_gap - closing_costs
                 # where cashflow_gap excludes closing costs, so we subtract them separately
-                # At year 0, no closing costs have been paid yet
-                if y == 0:
-                    net_advantage = net_equity - baseline_liquid + cashflow_gap
-                else:
-                    net_advantage = net_equity - baseline_liquid + cashflow_gap - closing_costs
+                # Closing costs are applied at year 0 (when the purchase is made)
+                net_advantage = net_equity - baseline_liquid + cashflow_gap - closing_costs
 
                 # Component breakdown for waterfall analysis
                 # Net advantage = net_equity - baseline_liquid + cashflow_gap
@@ -595,7 +603,7 @@ class BuyVsRentAnalyzer:
                 down_payment_component = i.down_payment  # Positive: down payment contribution to equity
                 opportunity_cost_dp_component = -baseline_liquid  # Negative: foregone investment returns
                 rent_avoided_net_component = cashflow_gap  # Rent avoided minus owner costs (excluding closing costs)
-                closing_costs_component = -closing_costs if y > 0 else 0  # Negative: upfront costs (only after year 0)
+                closing_costs_component = -closing_costs  # Negative: upfront costs (applied at year 0)
                 
                 # Verify component reconciliation
                 component_sum = (appreciation_gain + principal_built_component + down_payment_component + 

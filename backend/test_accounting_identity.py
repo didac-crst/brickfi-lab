@@ -49,11 +49,8 @@ def test_net_advantage_identity():
     failed_years = []
     
     for point in results:
-        # Calculate expected net advantage (updated formula includes closing costs)
-        if point.year == 0:
-            expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap
-        else:
-            expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap - 50000  # closing costs
+        # Calculate expected net advantage (closing costs applied at year 0)
+        expected_net_advantage = point.net_equity - point.baseline_liquid + point.cashflow_gap - 50000  # closing costs
         
         # Calculate error
         error = abs(point.net_advantage - expected_net_advantage)

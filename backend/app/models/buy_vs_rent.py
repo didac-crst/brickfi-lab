@@ -109,7 +109,8 @@ class BuyVsRentSummary(BaseModel):
         total_interest_paid (float): Total interest paid over the loan term
         owner_cost_month1 (float): Monthly ownership cost excluding principal in first month
         annual_saving_vs_rent (float): Annual savings compared to renting (negative = renting cheaper)
-        break_even_years (Optional[float]): Years until ownership becomes advantageous
+        cash_payback_years (Optional[float]): Years until cumulative cash savings recover upfront costs
+        wealth_breakeven_year (Optional[int]): Year when net advantage becomes positive
         monthly_rent_total (float): Total monthly rental cost including insurance
         owner_vs_rent_monthly (float): Monthly cost difference (positive = ownership costs more)
         calculated_loan_term_years (float): Loan term calculated from amortization rate
@@ -133,7 +134,8 @@ class BuyVsRentSummary(BaseModel):
     total_interest_paid: float
     owner_cost_month1: float
     annual_saving_vs_rent: float
-    break_even_years: Optional[float]
+    cash_payback_years: Optional[float]
+    wealth_breakeven_year: Optional[int]
     monthly_rent_total: float
     owner_vs_rent_monthly: float
     calculated_loan_term_years: float
@@ -162,7 +164,8 @@ class BuyVsRentSummary(BaseModel):
                 "total_interest_paid": 145291.82,
                 "owner_cost_month1": 1398.33,
                 "annual_saving_vs_rent": 3620.00,
-                "break_even_years": 14.50,
+                "cash_payback_years": 14.50,
+                "wealth_breakeven_year": 3,
                 "monthly_rent_total": 1700,
                 "owner_vs_rent_monthly": 301.67,
                 "calculated_loan_term_years": 20.8,
@@ -207,9 +210,9 @@ class PureBaselinePoint(BaseModel):
         components (Dict[str, float]): Component breakdown for waterfall analysis
             - appreciation_gain: House value growth over time
             - principal_built: Equity accumulated through mortgage payments
-            - interest_drag: Total interest paid (negative)
+            - down_payment: Down payment contribution to equity (positive)
             - opportunity_cost_dp: Foregone investment returns on down payment (negative)
-            - rent_avoided_net: Net benefit from not paying rent
+            - rent_avoided_net: Net benefit from not paying rent (includes interest in owner costs)
             - closing_costs: Upfront purchase costs (negative)
     """
     year: int
@@ -229,7 +232,7 @@ class PureBaselinePoint(BaseModel):
     cashflow_gap: float                    # cumul_rent - cumul_owner_cost
     net_advantage: float                   # net_equity - baseline_liquid + cashflow_gap
     # Waterfall-friendly components
-    components: Dict[str, float]           # {appreciation_gain, principal_built, interest_drag, opportunity_cost_dp, rent_avoided_net, closing_costs}
+    components: Dict[str, float]           # {appreciation_gain, principal_built, down_payment, opportunity_cost_dp, rent_avoided_net, closing_costs}
 
 
 class SensitivityInputs(BaseModel):
@@ -284,13 +287,13 @@ class SensitivityResult(BaseModel):
         rent (float): Rental price tested in this scenario
         owner_cost_m1 (float): Monthly ownership cost in first month
         annual_saving (float): Annual savings vs renting (negative = renting cheaper)
-        break_even_years (Optional[float]): Years until ownership becomes advantageous
+        cash_payback_years (Optional[float]): Years until cumulative cash savings recover upfront costs
     """
     rate: float
     rent: float
     owner_cost_m1: float
     annual_saving: float
-    break_even_years: Optional[float]
+    cash_payback_years: Optional[float]
 
     class Config:
         json_schema_extra = {
@@ -299,6 +302,6 @@ class SensitivityResult(BaseModel):
                 "rent": 1700,
                 "owner_cost_m1": 1398.33,
                 "annual_saving": 3620.00,
-                "break_even_years": 14.50
+                "cash_payback_years": 14.50
             }
         }
